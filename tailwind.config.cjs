@@ -1,10 +1,13 @@
 module.exports = {
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Plus Jakarta Sans", "sans-serif"],
+      },
+    },
   },
-  plugins: [require('daisyui')],
-  daisyui: {
-    themes: ['light', 'dark'],
-  },
+  plugins: [require("daisyui")],
+  daisyui: { themes: ["light"] },
 };
