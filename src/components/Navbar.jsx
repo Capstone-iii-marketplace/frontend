@@ -1,8 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import { useCart } from "../context/useCart";
 
 function NavBar() {
   const { isAuthenticated, logout, user } = useAuth();
+  const { count } = useCart();
 
   return (
     <nav className="w-full p-4 bg-base-200">
@@ -13,6 +15,9 @@ function NavBar() {
         <div className="flex-1" />
         {isAuthenticated ? (
           <>
+            <NavLink to="/checkout" className="btn btn-ghost">
+              Cart{count > 0 ? ` (${count})` : ""}
+            </NavLink>
             <span className="hidden text-sm text-base-content/70 sm:inline">
               {user?.email}
             </span>

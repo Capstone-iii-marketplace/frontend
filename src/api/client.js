@@ -53,4 +53,16 @@ export const marketplaceApi = {
   root() {
     return apiRequest(BACKEND_ROOT_PATH);
   },
+  listings() {
+    return apiRequest('/api/listings');
+  },
+  listing(id) {
+    return apiRequest(`/api/listings/${id}`);
+  },
+  createListing(payload) {
+    return apiRequest('/api/listings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
