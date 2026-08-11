@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import NavBar from "../components/Navbar";
-import { useAuth } from '../../context/useAuth';
+import { useAuth } from '../context/useAuth';
 
 function Signup() {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ function Signup() {
 
     try {
       await signup({ name, email, password });
-      navigate('/', { replace: true });
+      navigate('/home', { replace: true });
     } catch (err) {
       setError(err.message || 'Unable to reach the server. Please try again.');
     } finally {

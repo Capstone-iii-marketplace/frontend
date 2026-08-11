@@ -1,34 +1,19 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-const TOKEN_STORAGE_KEY = 'marketplace_auth_token';
 const BACKEND_ROOT_PATH = API_BASE_URL ? '/' : '/backend-api';
 
-export function getStoredToken() {
-  return localStorage.getItem(TOKEN_STORAGE_KEY);
-}
-
-export function storeToken(token) {
-  localStorage.setItem(TOKEN_STORAGE_KEY, token);
-}
-
-export function clearStoredToken() {
-  localStorage.removeItem(TOKEN_STORAGE_KEY);
-}
-
 export async function apiRequest(path, options = {}) {
-  const token = getStoredToken();
   const headers = new Headers(options.headers || {});
 
   if (!headers.has('Content-Type') && options.body) {
     headers.set('Content-Type', 'application/json');
   }
 
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
+    // The auth token lives in an httpOnly cookie the browser only sends
+    // when credentials are included. Without this every call is anonymous.
+    credentials: 'include',
   });
 
   const data = await response.json().catch(() => ({}));
@@ -52,6 +37,9 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ name, email, password }),
     });
+  },
+  logout() {
+    return apiRequest('/api/auth/logout', { method: 'POST' });
   },
   me() {
     return apiRequest('/api/auth/me');
