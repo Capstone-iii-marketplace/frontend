@@ -27,10 +27,7 @@ function Welcome() {
 
       <main className="mx-auto max-w-6xl px-6">
         <section className="py-20 text-center">
-          <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Verified students only
-          </span>
-          <h1 className="font-display mx-auto mt-5 max-w-2xl text-5xl font-bold leading-tight text-gray-900">
+          <h1 className="font-display mx-auto max-w-2xl text-5xl font-bold leading-tight text-gray-900">
             Buy and sell with students on your campus
           </h1>
           <p className="mx-auto mt-5 max-w-xl text-lg text-gray-600">
@@ -53,12 +50,8 @@ function Welcome() {
           </div>
         </section>
 
-        <section className="grid gap-5 pb-24 md:grid-cols-3">
+        <section className="grid gap-5 pb-24 md:grid-cols-2">
           {[
-            {
-              title: "Verified students",
-              body: "Every account belongs to a real student. No anonymous strangers.",
-            },
             {
               title: "Meet on campus",
               body: "Hand off items at the library or student center — no shipping.",
