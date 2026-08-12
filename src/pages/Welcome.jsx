@@ -50,30 +50,6 @@ function Welcome() {
           </div>
         </section>
 
-        <section className="grid gap-5 pb-24 md:grid-cols-2">
-          {[
-            {
-              title: "Meet on campus",
-              body: "Hand off items at the library or student center — no shipping.",
-            },
-            {
-              title: "Pay your way",
-              body: "Pay securely online, or reserve the item and pay cash in person.",
-            },
-          ].map((f) => (
-            <div
-              key={f.title}
-              className="rounded-xl border border-gray-200 bg-white p-6"
-            >
-              <h3 className="font-display text-base font-semibold text-gray-900">
-                {f.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                {f.body}
-              </p>
-            </div>
-          ))}
-        </section>
       </main>
     </div>
   );
