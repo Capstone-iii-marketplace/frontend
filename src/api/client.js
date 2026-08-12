@@ -61,6 +61,15 @@ export const marketplaceApi = {
       body: JSON.stringify(payload),
     });
   },
+  updateListing(id, payload) {
+    return apiRequest(`/api/listings/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+  deleteListing(id) {
+    return apiRequest(`/api/listings/${id}`, { method: 'DELETE' });
+  },
 };
 
 export const ordersApi = {
