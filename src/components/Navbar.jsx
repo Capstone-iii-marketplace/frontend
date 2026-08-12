@@ -15,12 +15,14 @@ function NavBar() {
   return (
     <nav className="w-full p-4 bg-base-200">
       <div className="container mx-auto flex items-center gap-4">
-        <NavLink to="/" className="font-bold">
-          Home
-        </NavLink>
+        <h2>PenThrive</h2>
+
         <div className="flex-1" />
         {isAuthenticated ? (
           <>
+            <NavLink to="/home" className="font-bold">
+              Dashboard
+            </NavLink>
             <NavLink to="/my-listings" className="btn btn-ghost">
               My Listings
             </NavLink>
