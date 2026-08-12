@@ -288,29 +288,6 @@ function ListingDetail() {
               </button>
             </div>
 
-            <button
-              type="button"
-              className="mt-3 w-full rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50"
-            >
-              Message Seller
-            </button>
-
-            {listing.paymentMethods !== "online" && (
-              <div className="mt-4 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
-                <p className="font-medium">🤝 Meet safely</p>
-                <p className="mt-0.5 text-blue-700">
-                  Choose a public location and meet during daytime hours when
-                  possible.
-                </p>
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="mt-4 text-xs text-gray-400 hover:text-gray-600"
-            >
-              Report listing
-            </button>
           </div>
         </div>
       </main>
