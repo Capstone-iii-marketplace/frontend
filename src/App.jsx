@@ -29,6 +29,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/sell" element={<PostListing />} />
+              <Route path="/listings/:id/edit" element={<PostListing />} />
               <Route path="/my-listings" element={<MyListings />} />
             </Route>
           </Routes>

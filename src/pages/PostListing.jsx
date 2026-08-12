@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import { marketplaceApi } from "../api/client";
 
@@ -41,6 +41,8 @@ function fileToDataUrl(file, maxDimension = 1280, quality = 0.82) {
 
 function PostListing() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
   const fileInputRef = useRef(null);
 
   const [title, setTitle] = useState("");
@@ -51,6 +53,42 @@ function PostListing() {
   const [isProcessingPhotos, setIsProcessingPhotos] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(isEditing);
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    let cancelled = false;
+    marketplaceApi
+      .listing(id)
+      .then(({ listing }) => {
+        if (cancelled) return;
+        setTitle(listing.title || "");
+        setDescription(listing.description || "");
+        setPrice(
+          typeof listing.priceCents === "number"
+            ? String(listing.priceCents / 100)
+            : "",
+        );
+        setPaymentMethods(listing.paymentMethods || "both");
+        setPhotos(
+          (listing.images || []).map((dataUrl, i) => ({
+            id: `existing-${i}`,
+            dataUrl,
+          })),
+        );
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message || "Couldn't load that listing.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isEditing]);
 
   async function handleFiles(fileList) {
     const files = Array.from(fileList || []).filter((f) =>
@@ -108,16 +146,22 @@ function PostListing() {
 
     setIsSubmitting(true);
     try {
-      const data = await marketplaceApi.createListing({
+      const payload = {
         title: title.trim(),
         description: description.trim(),
         priceCents: Math.round(priceNumber * 100),
         paymentMethods,
         images: photos.map((p) => p.dataUrl),
-      });
+      };
+      const data = isEditing
+        ? await marketplaceApi.updateListing(id, payload)
+        : await marketplaceApi.createListing(payload);
       navigate(`/listings/${data.listing.id}`);
     } catch (err) {
-      setError(err.message || "Couldn't post this listing. Try again.");
+      setError(
+        err.message ||
+          `Couldn't ${isEditing ? "update" : "post"} this listing. Try again.`,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -129,13 +173,17 @@ function PostListing() {
 
       <main className="mx-auto max-w-2xl px-6 py-8">
         <h1 className="font-display text-2xl font-bold text-gray-900">
-          Post an item
+          {isEditing ? "Edit listing" : "Post an item"}
         </h1>
         <p className="mt-1 text-sm text-gray-600">
-          Fill in the details below — it'll show up in the marketplace right
-          away.
+          {isEditing
+            ? "Update the details below."
+            : "Fill in the details below — it'll show up in the marketplace right away."}
         </p>
 
+        {isLoading ? (
+          <p className="mt-10 text-center text-sm text-gray-500">Loading...</p>
+        ) : (
         <form
           onSubmit={handleSubmit}
           className="mt-6 space-y-5 rounded-xl border border-gray-200 bg-white p-6"
@@ -281,9 +329,16 @@ function PostListing() {
             disabled={isSubmitting || isProcessingPhotos}
             className="w-full rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isSubmitting ? "Posting..." : "Post listing"}
+            {isSubmitting
+              ? isEditing
+                ? "Saving..."
+                : "Posting..."
+              : isEditing
+                ? "Save changes"
+                : "Post listing"}
           </button>
         </form>
+        )}
       </main>
     </div>
   );

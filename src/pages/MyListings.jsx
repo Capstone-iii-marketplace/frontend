@@ -67,6 +67,21 @@ function MyListings() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
+  async function handleDelete(id) {
+    if (!window.confirm("Remove this listing? This can't be undone.")) return;
+
+    setDeletingId(id);
+    try {
+      await marketplaceApi.deleteListing(id);
+      setListings((prev) => prev.filter((l) => l.id !== id));
+    } catch (err) {
+      setError(err.message || "Couldn't remove that listing.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +89,9 @@ function MyListings() {
     Promise.all([marketplaceApi.myListings(), ordersApi.mine()])
       .then(([listingsData, ordersData]) => {
         if (cancelled) return;
-        setListings(listingsData.listings || []);
+        setListings(
+          (listingsData.listings || []).filter((l) => l.status !== "removed"),
+        );
         setOrders(ordersData.orders || []);
       })
       .catch((err) => {
@@ -145,7 +162,25 @@ function MyListings() {
           ) : (
             <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {listings.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
+                <div key={listing.id} className="relative">
+                  <ListingCard listing={listing} />
+                  <div className="mt-2 flex gap-2">
+                    <Link
+                      to={`/listings/${listing.id}/edit`}
+                      className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-center text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(listing.id)}
+                      disabled={deletingId === listing.id}
+                      className="flex-1 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {deletingId === listing.id ? "Removing..." : "Remove"}
+                    </button>
+                  </div>
+                </div>
               ))}
             </section>
           )
