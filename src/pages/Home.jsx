@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import ListingCard from "../components/ListingCard";
-import { useAuth } from "../context/useAuth";
+import { useAuth } from "../context/AuthContext";
 import { marketplaceApi } from "../api/client";
 
 function Home() {

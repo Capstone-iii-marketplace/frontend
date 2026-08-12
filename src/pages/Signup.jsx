@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import NavBar from "../components/Navbar";
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../context/AuthContext';
 
 function Signup() {
   const navigate = useNavigate();

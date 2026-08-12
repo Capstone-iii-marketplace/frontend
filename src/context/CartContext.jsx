@@ -1,5 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CartContext } from './cart-context';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 const STORAGE_KEY = 'tradenest_cart';
 
@@ -11,6 +17,10 @@ function readStoredCart() {
     return [];
   }
 }
+
+// Holds the shopping cart, so any component can read/change it with
+// useCart() instead of passing items/addToCart down as props.
+export const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState(readStoredCart);
@@ -67,4 +77,15 @@ export function CartProvider({ children }) {
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+// Lets any component read the cart: const { items, addToCart } = useCart();
+export function useCart() {
+  const context = useContext(CartContext);
+
+  if (!context) {
+    throw new Error('useCart must be used inside CartProvider');
+  }
+
+  return context;
 }

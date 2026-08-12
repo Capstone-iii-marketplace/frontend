@@ -111,7 +111,7 @@ function PostListing() {
       const data = await marketplaceApi.createListing({
         title: title.trim(),
         description: description.trim(),
-        price: priceNumber,
+        priceCents: Math.round(priceNumber * 100),
         paymentMethods,
         images: photos.map((p) => p.dataUrl),
       });

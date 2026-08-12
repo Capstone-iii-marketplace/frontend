@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import { marketplaceApi } from "../api/client";
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/CartContext";
 
 const STATUS_STYLES = {
   active: "bg-emerald-50 text-emerald-700",

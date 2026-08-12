@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/CartContext";
 
 const STATUS_STYLES = {
   active: "bg-emerald-50 text-emerald-700",

@@ -4,6 +4,7 @@ import Home from "./pages/Home.jsx";
 import ListingDetail from "./pages/ListingDetail.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import PostListing from "./pages/PostListing.jsx";
+import MyListings from "./pages/MyListings.jsx";
 import Login from "./components/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -28,6 +29,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/sell" element={<PostListing />} />
+              <Route path="/my-listings" element={<MyListings />} />
             </Route>
           </Routes>
         </CartProvider>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import NavBar from "../components/Navbar";
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/CartContext";
 
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {

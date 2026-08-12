@@ -1,10 +1,16 @@
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
-import { useCart } from "../context/useCart";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 function NavBar() {
   const { isAuthenticated, logout, user } = useAuth();
   const { count } = useCart();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <nav className="w-full p-4 bg-base-200">
@@ -15,13 +21,20 @@ function NavBar() {
         <div className="flex-1" />
         {isAuthenticated ? (
           <>
+            <NavLink to="/my-listings" className="btn btn-ghost">
+              My Listings
+            </NavLink>
             <NavLink to="/checkout" className="btn btn-ghost">
               Cart{count > 0 ? ` (${count})` : ""}
             </NavLink>
             <span className="hidden text-sm text-base-content/70 sm:inline">
               {user?.email}
             </span>
-            <button type="button" className="btn btn-ghost" onClick={logout}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </>

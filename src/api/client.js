@@ -1,5 +1,4 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-const BACKEND_ROOT_PATH = API_BASE_URL ? '/' : '/backend-api';
 
 export async function apiRequest(path, options = {}) {
   const headers = new Headers(options.headers || {});
@@ -47,14 +46,11 @@ export const authApi = {
 };
 
 export const marketplaceApi = {
-  health() {
-    return apiRequest('/health');
-  },
-  root() {
-    return apiRequest(BACKEND_ROOT_PATH);
-  },
   listings() {
     return apiRequest('/api/listings');
+  },
+  myListings() {
+    return apiRequest('/api/listings/mine');
   },
   listing(id) {
     return apiRequest(`/api/listings/${id}`);
@@ -64,5 +60,11 @@ export const marketplaceApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+};
+
+export const ordersApi = {
+  mine() {
+    return apiRequest('/api/orders/mine');
   },
 };

@@ -1,6 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { authApi } from '../api/client';
-import { AuthContext } from './auth-context';
+
+// Holds whoever is signed in right now, so any component can read it with
+// useAuth() instead of passing user/login/logout down as props.
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -57,4 +67,15 @@ export function AuthProvider({ children }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// Lets any component read auth state: const { user, login } = useAuth();
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error('useAuth must be used inside AuthProvider');
+  }
+
+  return context;
 }
