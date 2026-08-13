@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 
+// Converts integer cents into a display currency string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -10,6 +11,9 @@ function formatPrice(priceCents) {
   });
 }
 
+// Cart review page. Payment is intentionally not wired up yet — the
+// "Place order" button below is disabled on purpose (no backend endpoint
+// for creating an order exists yet, only GET /api/orders/mine for history).
 function Checkout() {
   const { items, totalCents, removeFromCart, clearCart } = useCart();
 

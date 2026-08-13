@@ -39,6 +39,8 @@ function fileToDataUrl(file, maxDimension = 1280, quality = 0.82) {
   });
 }
 
+// Create/edit form for a listing. Dual-purpose: /sell (create, no :id) and
+// /listings/:id/edit (edit, :id present) both render this same component.
 function PostListing() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -55,6 +57,7 @@ function PostListing() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(isEditing);
 
+  // When editing, pre-fills every field from the existing listing.
   useEffect(() => {
     if (!isEditing) return;
 
@@ -90,6 +93,8 @@ function PostListing() {
     };
   }, [id, isEditing]);
 
+  // Filters the picked files down to images, respects the MAX_PHOTOS cap,
+  // and converts each one to a compressed data URL via fileToDataUrl.
   async function handleFiles(fileList) {
     const files = Array.from(fileList || []).filter((f) =>
       f.type.startsWith("image/"),
@@ -116,11 +121,13 @@ function PostListing() {
     }
   }
 
+  // Wires the hidden <input type="file"> (click-to-browse path).
   function handleFileInputChange(e) {
     handleFiles(e.target.files);
     e.target.value = ""; // allow picking the same file again later
   }
 
+  // Drag-and-drop path — same handling as the click-to-browse path.
   function handleDrop(e) {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
@@ -130,6 +137,8 @@ function PostListing() {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
   }
 
+  // Validates title/price, converts dollars to integer priceCents (matching
+  // how the backend stores money), then creates or updates depending on mode.
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");

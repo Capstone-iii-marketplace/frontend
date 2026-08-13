@@ -29,6 +29,9 @@ export function CartProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
+  // Adds a listing to the cart, deduped by id — each listing is a one-off
+  // physical item, so it can't be added twice. Stores a lightweight
+  // snapshot rather than the full listing object.
   const addToCart = useCallback((listing) => {
     setItems((prev) => {
       if (prev.some((item) => item.listingId === listing.id)) {
@@ -47,12 +50,15 @@ export function CartProvider({ children }) {
     });
   }, []);
 
+  // Drops one item from the cart by listing id.
   const removeFromCart = useCallback((listingId) => {
     setItems((prev) => prev.filter((item) => item.listingId !== listingId));
   }, []);
 
+  // Empties the cart entirely (used after "Clear cart").
   const clearCart = useCallback(() => setItems([]), []);
 
+  // Used by ListingCard/ListingDetail to show "Add to cart" vs "In cart".
   const isInCart = useCallback(
     (listingId) => items.some((item) => item.listingId === listingId),
     [items],
@@ -79,7 +85,8 @@ export function CartProvider({ children }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-// Lets any component read the cart: const { items, addToCart } = useCart();
+// Hook every component uses to read/change the cart:
+// const { items, count, totalCents, addToCart, removeFromCart } = useCart();
 export function useCart() {
   const context = useContext(CartContext);
 

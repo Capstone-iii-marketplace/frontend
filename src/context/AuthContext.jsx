@@ -18,6 +18,8 @@ export function AuthProvider({ children }) {
   // exists. Asking the server is the only way to know who's signed in.
   const [isLoading, setIsLoading] = useState(true);
 
+  // Asks the server who's logged in (via the /me endpoint) since JS can't
+  // read the httpOnly cookie itself. Runs once on mount below.
   const loadCurrentUser = useCallback(async () => {
     try {
       const data = await authApi.me();
@@ -33,18 +35,23 @@ export function AuthProvider({ children }) {
     loadCurrentUser();
   }, [loadCurrentUser]);
 
+  // Logs in via the API, then stores the returned user so the whole app
+  // re-renders as "authenticated".
   const login = useCallback(async (email, password) => {
     const data = await authApi.login(email, password);
     setUser(data.user);
     return data.user;
   }, []);
 
+  // Creates a new account and immediately signs the user in.
   const signup = useCallback(async (formData) => {
     const data = await authApi.signup(formData);
     setUser(data.user);
     return data.user;
   }, []);
 
+  // Clears the server-side cookie, then clears local state in `finally` so
+  // the UI still logs the user out even if the network call fails.
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -69,7 +76,8 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Lets any component read auth state: const { user, login } = useAuth();
+// Hook every component uses to read/change auth state:
+// const { user, isAuthenticated, login, signup, logout } = useAuth();
 export function useAuth() {
   const context = useContext(AuthContext);
 

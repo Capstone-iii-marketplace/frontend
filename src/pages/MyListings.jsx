@@ -10,6 +10,7 @@ const STATUS_STYLES = {
   cancelled: "bg-gray-100 text-gray-500",
 };
 
+// Converts integer cents into a display currency string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -18,6 +19,7 @@ function formatPrice(priceCents) {
   });
 }
 
+// One row in the "Bought" tab: thumbnail, title, seller, price, status.
 function OrderRow({ order }) {
   const listing = order.listing;
   const thumbnail = listing?.images?.[0];
@@ -61,6 +63,8 @@ function OrderRow({ order }) {
   );
 }
 
+// Authenticated user's dashboard: their own listings ("Selling") and their
+// past purchases ("Bought"), as two tabs.
 function MyListings() {
   const [tab, setTab] = useState("selling");
   const [listings, setListings] = useState([]);
@@ -69,6 +73,9 @@ function MyListings() {
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
+  // Confirms, then soft-deletes a listing via the API and removes it from
+  // local state optimistically. deletingId scopes the "Removing..." state
+  // to just the card being deleted, not the whole list.
   async function handleDelete(id) {
     if (!window.confirm("Remove this listing? This can't be undone.")) return;
 
@@ -83,6 +90,8 @@ function MyListings() {
     }
   }
 
+  // Fetches listings and orders in parallel (not sequentially) since
+  // neither depends on the other's result.
   useEffect(() => {
     let cancelled = false;
 

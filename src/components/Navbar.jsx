@@ -3,11 +3,14 @@ import { PenLine } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
+// Top navigation bar, rendered by each page individually. Adapts its links
+// based on auth state (Dashboard/Cart/Logout vs. Login/Sign Up).
 function NavBar() {
   const { isAuthenticated, logout, user } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
 
+  // Logs the user out, then sends them back to the landing page.
   const handleLogout = async () => {
     await logout();
     navigate("/");

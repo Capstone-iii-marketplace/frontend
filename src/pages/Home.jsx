@@ -5,6 +5,7 @@ import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthContext";
 import { marketplaceApi } from "../api/client";
 
+// Main marketplace browse/search page.
 function Home() {
   const { user, isAuthenticated } = useAuth();
   const [listings, setListings] = useState([]);
@@ -12,6 +13,9 @@ function Home() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
+  // Fetches all active listings once on mount. The `cancelled` flag avoids
+  // calling setState after the component has unmounted (e.g. user navigated
+  // away before the request finished).
   useEffect(() => {
     let cancelled = false;
 
@@ -32,6 +36,8 @@ function Home() {
     };
   }, []);
 
+  // Client-side filter over the already-loaded listings — no server round
+  // trip needed for search since the whole catalog is already in memory.
   const filteredListings = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (!term) return listings;
