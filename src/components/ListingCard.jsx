@@ -8,6 +8,7 @@ const STATUS_STYLES = {
   removed: "bg-gray-100 text-gray-500",
 };
 
+// Converts integer cents (how the backend stores money) into a display string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -16,6 +17,7 @@ function formatPrice(priceCents) {
   });
 }
 
+// Turns a timestamp into relative text like "3h ago".
 function timeAgo(dateString) {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -27,6 +29,7 @@ function timeAgo(dateString) {
   return `${days}d ago`;
 }
 
+// Turns a seller's name into a two-letter avatar badge, e.g. "Alice Bell" -> "AB".
 function initials(name = "") {
   return name
     .split(" ")
@@ -36,12 +39,16 @@ function initials(name = "") {
     .join("");
 }
 
+// Reusable listing tile — used in the Home grid and the "Selling" tab of
+// My Listings. The whole card is a Link to the listing's detail page.
 function ListingCard({ listing }) {
   const { addToCart, isInCart } = useCart();
   const thumbnail = listing.images?.[0];
   const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.active;
   const inCart = isInCart(listing.id);
 
+  // stopPropagation is required here: without it, clicking the cart button
+  // would also trigger the parent <Link>'s navigation to the detail page.
   function handleAddToCart(e) {
     e.preventDefault();
     e.stopPropagation();

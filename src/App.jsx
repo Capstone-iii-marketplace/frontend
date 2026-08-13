@@ -12,6 +12,9 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import "./App.css";
 
+// Root component — defines every page route (the app's sitemap) and wraps
+// the whole tree in the Auth and Cart context providers so any page can
+// read who's logged in (useAuth) or what's in the cart (useCart).
 function App() {
   return (
     <BrowserRouter>
@@ -25,8 +28,11 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/listings/:id" element={<ListingDetail />} />
 
-            {/* signed in — buying and selling both require an account */}
+            {/* signed in — buying and selling both require an account.
+                ProtectedRoute redirects to /login if there's no user. */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/sell" element={<PostListing />} />
               <Route path="/listings/:id/edit" element={<PostListing />} />

@@ -24,6 +24,7 @@ const PAYMENT_LABEL = {
   both: "Online or in-person",
 };
 
+// Converts integer cents into a display currency string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -32,6 +33,7 @@ function formatPrice(priceCents) {
   });
 }
 
+// Turns a timestamp into relative text like "3h ago".
 function timeAgo(dateString) {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -43,6 +45,7 @@ function timeAgo(dateString) {
   return `${days}d ago`;
 }
 
+// Absolute date for the "Posted <timeAgo> · <formatDate>" line.
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
@@ -51,6 +54,7 @@ function formatDate(dateString) {
   });
 }
 
+// "Member since <month year>" text for the seller card.
 function memberSince(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "long",
@@ -58,6 +62,7 @@ function memberSince(dateString) {
   });
 }
 
+// Two-letter avatar badge from a seller's name.
 function initials(name = "") {
   return name
     .split(" ")
@@ -67,6 +72,7 @@ function initials(name = "") {
     .join("");
 }
 
+// Small inline SVG icon — no external icon library is used in this project.
 function CartIcon() {
   return (
     <svg
@@ -85,6 +91,7 @@ function CartIcon() {
   );
 }
 
+// Single-listing detail page at /listings/:id.
 function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -93,8 +100,10 @@ function ListingDetail() {
   const [listing, setListing] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Local-only "wishlist" heart toggle — not persisted to the backend.
   const [saved, setSaved] = useState(false);
 
+  // Re-fetches the listing whenever the :id route param changes.
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
@@ -163,6 +172,7 @@ function ListingDetail() {
     addToCart(listing);
   }
 
+  // "Buy now" shortcut — adds to cart and jumps straight to checkout in one step.
   function handleCheckout() {
     addToCart(listing);
     navigate("/checkout");

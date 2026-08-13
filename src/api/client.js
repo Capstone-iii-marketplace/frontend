@@ -1,5 +1,13 @@
+// Single gateway between the frontend and the Express backend. Every API
+// call in the app funnels through apiRequest() below, so fetch options,
+// error handling, and cookie behavior stay consistent in one place.
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
+// Core fetch wrapper used by every function in this file.
+// - Sets Content-Type: application/json automatically when there's a body.
+// - Always sends credentials so the httpOnly JWT cookie is attached.
+// - Throws a plain Error with the server's message on any non-OK response,
+//   so callers can just try/catch instead of checking response.ok everywhere.
 export async function apiRequest(path, options = {}) {
   const headers = new Headers(options.headers || {});
 
@@ -24,6 +32,7 @@ export async function apiRequest(path, options = {}) {
   return data;
 }
 
+// Auth endpoints: signup, login, logout, and "who am I right now" (me).
 export const authApi = {
   login(email, password) {
     return apiRequest('/api/auth/login', {
@@ -45,6 +54,7 @@ export const authApi = {
   },
 };
 
+// Listing CRUD: browsing, the current user's own listings, and create/edit/delete.
 export const marketplaceApi = {
   listings() {
     return apiRequest('/api/listings');
@@ -72,6 +82,7 @@ export const marketplaceApi = {
   },
 };
 
+// Order history — read-only, no order-creation endpoint exists yet.
 export const ordersApi = {
   mine() {
     return apiRequest('/api/orders/mine');
