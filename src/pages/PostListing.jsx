@@ -184,160 +184,160 @@ function PostListing() {
         {isLoading ? (
           <p className="mt-10 text-center text-sm text-gray-500">Loading...</p>
         ) : (
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 space-y-5 rounded-xl border border-gray-200 bg-white p-6"
-        >
-          <div>
-            <label
-              htmlFor="title"
-              className="text-sm font-medium text-gray-900"
-            >
-              Title
-            </label>
-            <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Calculus: Early Transcendentals, 8th ed."
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="description"
-              className="text-sm font-medium text-gray-900"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Condition, why you're selling, anything a buyer should know..."
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-6 space-y-5 rounded-xl border border-gray-200 bg-white p-6"
+          >
             <div>
               <label
-                htmlFor="price"
+                htmlFor="title"
                 className="text-sm font-medium text-gray-900"
               >
-                Price ($)
+                Title
               </label>
               <input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="45.00"
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Calculus: Early Transcendentals, 8th ed."
                 className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
               />
             </div>
 
             <div>
               <label
-                htmlFor="paymentMethods"
+                htmlFor="description"
                 className="text-sm font-medium text-gray-900"
               >
-                Payment
+                Description
               </label>
-              <select
-                id="paymentMethods"
-                value={paymentMethods}
-                onChange={(e) => setPaymentMethods(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm"
-              >
-                {PAYMENT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              <textarea
+                id="description"
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Condition, why you're selling, anything a buyer should know..."
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
+              />
             </div>
-          </div>
 
-          <div>
-            <span className="text-sm font-medium text-gray-900">Photos</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="price"
+                  className="text-sm font-medium text-gray-900"
+                >
+                  Price ($)
+                </label>
+                <input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="45.00"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
+                />
+              </div>
 
-            <div className="mt-2 flex flex-wrap gap-3">
-              {photos.map((photo) => (
-                <div key={photo.id} className="group relative h-20 w-20">
-                  <img
-                    src={photo.dataUrl}
-                    alt=""
-                    className="h-full w-full rounded-lg border border-gray-200 object-cover"
-                  />
+              <div>
+                <label
+                  htmlFor="paymentMethods"
+                  className="text-sm font-medium text-gray-900"
+                >
+                  Payment
+                </label>
+                <select
+                  id="paymentMethods"
+                  value={paymentMethods}
+                  onChange={(e) => setPaymentMethods(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm"
+                >
+                  {PAYMENT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-sm font-medium text-gray-900">Photos</span>
+
+              <div className="mt-2 flex flex-wrap gap-3">
+                {photos.map((photo) => (
+                  <div key={photo.id} className="group relative h-20 w-20">
+                    <img
+                      src={photo.dataUrl}
+                      alt=""
+                      className="h-full w-full rounded-lg border border-gray-200 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(photo.id)}
+                      aria-label="Remove photo"
+                      className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs text-white shadow-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+
+                {photos.length < MAX_PHOTOS && (
                   <button
                     type="button"
-                    onClick={() => removePhoto(photo.id)}
-                    aria-label="Remove photo"
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs text-white shadow-sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    disabled={isProcessingPhotos}
+                    className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600 disabled:opacity-50"
                   >
-                    ✕
+                    <span className="text-xl leading-none">+</span>
+                    <span className="text-[10px] leading-tight">
+                      {isProcessingPhotos ? "Adding..." : "Upload"}
+                    </span>
                   </button>
-                </div>
-              ))}
+                )}
+              </div>
 
-              {photos.length < MAX_PHOTOS && (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                  disabled={isProcessingPhotos}
-                  className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600 disabled:opacity-50"
-                >
-                  <span className="text-xl leading-none">+</span>
-                  <span className="text-[10px] leading-tight">
-                    {isProcessingPhotos ? "Adding..." : "Upload"}
-                  </span>
-                </button>
-              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+
+              <p className="mt-2 text-xs text-gray-400">
+                Choose photos from your computer — up to {MAX_PHOTOS}. The first
+                one becomes the thumbnail.
+              </p>
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileInputChange}
-              className="hidden"
-            />
+            {error && (
+              <p className="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                {error}
+              </p>
+            )}
 
-            <p className="mt-2 text-xs text-gray-400">
-              Choose photos from your computer — up to {MAX_PHOTOS}. The first
-              one becomes the thumbnail.
-            </p>
-          </div>
-
-          {error && (
-            <p className="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting || isProcessingPhotos}
-            className="w-full rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSubmitting
-              ? isEditing
-                ? "Saving..."
-                : "Posting..."
-              : isEditing
-                ? "Save changes"
-                : "Post listing"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSubmitting || isProcessingPhotos}
+              className="w-full rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmitting
+                ? isEditing
+                  ? "Saving..."
+                  : "Posting..."
+                : isEditing
+                  ? "Save changes"
+                  : "Post listing"}
+            </button>
+          </form>
         )}
       </main>
     </div>

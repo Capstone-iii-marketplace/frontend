@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { PenLine } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
@@ -15,7 +16,10 @@ function NavBar() {
   return (
     <nav className="w-full p-4 bg-base-200">
       <div className="container mx-auto flex items-center gap-4">
-        <h2>PenThrive</h2>
+        <h2 className="font-display flex items-center gap-1.5 text-lg font-bold">
+          Sell Me A Pen
+          <PenLine size={18} strokeWidth={2.25} className="text-emerald-600" />
+        </h2>
 
         <div className="flex-1" />
         {isAuthenticated ? (
@@ -29,9 +33,6 @@ function NavBar() {
             <NavLink to="/checkout" className="btn btn-ghost">
               Cart{count > 0 ? ` (${count})` : ""}
             </NavLink>
-            <span className="hidden text-sm text-base-content/70 sm:inline">
-              {user?.email}
-            </span>
             <button
               type="button"
               className="btn btn-ghost"

@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
+import { PenLine } from "lucide-react";
 
 function Welcome() {
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="font-display text-lg font-bold text-gray-900">
-            PenThrive
+          <span className="font-display flex items-center gap-1.5 text-lg font-bold text-gray-900">
+            Sell Me A Pen
+            <PenLine size={18} strokeWidth={2.25} className="text-emerald-600" />
           </span>
           <nav className="flex items-center gap-3">
             <Link

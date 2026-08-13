@@ -5,14 +5,14 @@ import { marketplaceApi } from "../api/client";
 import { useCart } from "../context/CartContext";
 
 const STATUS_STYLES = {
-  active: "bg-emerald-50 text-emerald-700",
+  avaliable: "bg-emerald-50 text-emerald-700",
   pending: "bg-amber-50 text-amber-700",
   sold: "bg-gray-100 text-gray-500",
   removed: "bg-gray-100 text-gray-500",
 };
 
 const STATUS_LABEL = {
-  active: "Available",
+  avaliable: "Available",
   pending: "Pending",
   sold: "Sold",
   removed: "Removed",
@@ -155,7 +155,7 @@ function ListingDetail() {
   }
 
   const image = listing.images?.[0];
-  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.active;
+  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.avaliable;
   const statusLabel = STATUS_LABEL[listing.status] || listing.status;
   const inCart = isInCart(listing.id);
 
@@ -230,7 +230,8 @@ function ListingDetail() {
             </div>
 
             <p className="mt-3 text-xs text-gray-400">
-              Posted {timeAgo(listing.createdAt)} · {formatDate(listing.createdAt)}
+              Posted {timeAgo(listing.createdAt)} ·{" "}
+              {formatDate(listing.createdAt)}
             </p>
 
             <h2 className="mt-6 text-sm font-semibold text-gray-900">
@@ -268,7 +269,7 @@ function ListingDetail() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={listing.status !== "active"}
+                disabled={listing.status !== "avaliable"}
                 className={`flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition ${
                   inCart
                     ? "border-gray-900 bg-gray-900 text-white"
@@ -281,13 +282,12 @@ function ListingDetail() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={listing.status !== "active"}
+                disabled={listing.status !== "avaliable"}
                 className="rounded-lg bg-purple-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Checkout
               </button>
             </div>
-
           </div>
         </div>
       </main>

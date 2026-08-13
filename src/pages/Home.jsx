@@ -47,7 +47,7 @@ function Home() {
       <main className="mx-auto max-w-6xl px-6 py-8">
         <h1 className="font-display text-2xl font-bold text-gray-900">
           {isAuthenticated
-            ? `Welcome back, ${user?.name?.split(" ")[0] || "there"}`
+            ? `Welcome , ${user?.name?.split(" ")[0] || "there"}`
             : "Find something you need"}
         </h1>
         <p className="mt-1 text-sm text-gray-600">

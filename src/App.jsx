@@ -8,7 +8,7 @@ import MyListings from "./pages/MyListings.jsx";
 import Login from "./components/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Signup from "./pages/Signup.jsx";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import { AuthContext, AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import "./App.css";
 
@@ -22,11 +22,11 @@ function App() {
             <Route path="/" element={<Welcome />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/listings/:id" element={<ListingDetail />} />
 
             {/* signed in — buying and selling both require an account */}
             <Route element={<ProtectedRoute />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/sell" element={<PostListing />} />
               <Route path="/listings/:id/edit" element={<PostListing />} />
