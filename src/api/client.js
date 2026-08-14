@@ -82,9 +82,16 @@ export const marketplaceApi = {
   },
 };
 
-// Order history — read-only, no order-creation endpoint exists yet.
 export const ordersApi = {
   mine() {
     return apiRequest('/api/orders/mine');
+  },
+  // Starts a Stripe Checkout for the given listing ids and returns
+  // { url } to redirect the browser to.
+  createCheckoutSession(listingIds) {
+    return apiRequest('/api/orders/checkout-session', {
+      method: 'POST',
+      body: JSON.stringify({ listingIds }),
+    });
   },
 };
