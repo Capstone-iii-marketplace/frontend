@@ -3,6 +3,7 @@ import Welcome from "./pages/Welcome.jsx";
 import Home from "./pages/Home.jsx";
 import ListingDetail from "./pages/ListingDetail.jsx";
 import Checkout from "./pages/Checkout.jsx";
+import CheckoutSuccess from "./pages/CheckoutSuccess.jsx";
 import PostListing from "./pages/PostListing.jsx";
 import MyListings from "./pages/MyListings.jsx";
 import Login from "./components/Login.jsx";
@@ -32,6 +33,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/sell" element={<PostListing />} />
               <Route path="/listings/:id/edit" element={<PostListing />} />
               <Route path="/my-listings" element={<MyListings />} />
