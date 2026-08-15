@@ -12,6 +12,7 @@ import Signup from "./pages/Signup.jsx";
 import { AuthContext, AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { SocketProvider } from "./context/SocketContext.jsx";
+import Messages from './pages/Messages.jsx';
 import "./App.css";
 
 // Root component — defines every page route (the app's sitemap) and wraps
@@ -39,6 +40,8 @@ function App() {
                 <Route path="/sell" element={<PostListing />} />
                 <Route path="/listings/:id/edit" element={<PostListing />} />
                 <Route path="/my-listings" element={<MyListings />} />
+                <Route path="/messages" element={<Messages/>} />
+                <Route path="/messages/:id" element={<Messages/>} />
               </Route>
             </Routes>
           </CartProvider>
