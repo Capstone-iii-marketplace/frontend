@@ -33,6 +33,9 @@ function NavBar() {
             <NavLink to="/my-listings" className="btn btn-ghost">
               My Listings
             </NavLink>
+            <NavLink to="/messages" className="btn btn-ghost">
+              Messages
+            </NavLink>
             <NavLink to="/checkout" className="btn btn-ghost">
               Cart{count > 0 ? ` (${count})` : ""}
             </NavLink>

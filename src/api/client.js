@@ -95,3 +95,21 @@ export const ordersApi = {
     });
   },
 };
+
+// Chat threads. A conversation is one (listing, buyer) pair — the seller is
+// whoever owns the listing, so it isn't stored on the conversation itself.
+export const chatApi = {
+  conversations() {
+    return apiRequest('/api/conversations');
+  },
+  // Idempotent: opening a chat twice returns the same thread, never a copy.
+  openConversation(listingId) {
+    return apiRequest('/api/conversations', {
+      method: 'POST',
+      body: JSON.stringify({ listingId }),
+    });
+  },
+  messages(conversationId) {
+    return apiRequest(`/api/conversations/${conversationId}/messages`);
+  },
+};
