@@ -46,7 +46,7 @@ function NavBar() {
             <NavLink to="/login" className="btn btn-ghost">
               Login
             </NavLink>
-            <NavLink to="/signup" className="btn btn-primary">
+            <NavLink to="/signup" className="btn btn-neutral">
               Sign Up
             </NavLink>
           </>

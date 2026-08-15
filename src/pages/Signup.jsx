@@ -81,7 +81,7 @@ function Signup() {
 
               {error && <p className="text-error">{error}</p>}
 
-              <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
+              <button type="submit" className="btn btn-neutral w-full" disabled={isSubmitting}>
                 {isSubmitting ? 'Creating account...' : 'Sign Up'}
               </button>
             </form>
