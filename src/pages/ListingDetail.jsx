@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/Navbar";
-import { marketplaceApi } from "../api/client";
+import { marketplaceApi, chatApi } from "../api/client";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const STATUS_STYLES = {
   avaliable: "bg-emerald-50 text-emerald-700",
@@ -12,7 +13,7 @@ const STATUS_STYLES = {
 };
 
 const STATUS_LABEL = {
-  avaliable: "Available",
+  available: "Available",
   pending: "Pending",
   sold: "Sold",
   removed: "Removed",
@@ -97,6 +98,9 @@ function ListingDetail() {
   const navigate = useNavigate();
   const { addToCart, isInCart } = useCart();
 
+  const { user } = useAuth();
+  const [chatError, setChatError] = useState(null);
+
   const [listing, setListing] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -176,6 +180,17 @@ function ListingDetail() {
   function handleCheckout() {
     addToCart(listing);
     navigate("/checkout");
+  }
+
+  // Opening a chat is idempotent server-side — clicking twice lands in the
+  // same thread rather than creating a second one.
+  async function handleMessageSeller() {
+    try {
+      const data = await chatApi.openConversation(listing.id);
+      navigate(`/messages/${data.conversation.id}`);
+    } catch (err) {
+      setChatError(err.message);
+    }
   }
 
   return (
@@ -273,7 +288,22 @@ function ListingDetail() {
                     ` · ${listing.seller.salesCount} sales`}
                 </p>
               </div>
+
+              {/* No point messaging yourself — the API rejects it anyway. */}
+              {listing.seller?.id !== user?.id && (
+                <button
+                  type="button"
+                  onClick={handleMessageSeller}
+                  className="ml-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-gray-900"
+                >
+                  Message
+                </button>
+              )}
             </div>
+
+            {chatError && (
+              <p className="mt-2 text-sm text-rose-600">{chatError}</p>
+            )}
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
