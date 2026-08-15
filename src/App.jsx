@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Signup from "./pages/Signup.jsx";
 import { AuthContext, AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 import "./App.css";
 
 // Root component — defines every page route (the app's sitemap) and wraps
@@ -20,26 +21,28 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <Routes>
-            {/* public — anyone can browse listings, logged in or not */}
-            <Route path="/" element={<Welcome />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+        <SocketProvider>
+          <CartProvider>
+            <Routes>
+              {/* public — anyone can browse listings, logged in or not */}
+              <Route path="/" element={<Welcome />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
 
-            {/* signed in — buying and selling both require an account.
+              {/* signed in — buying and selling both require an account.
                 ProtectedRoute redirects to /login if there's no user. */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/listings/:id" element={<ListingDetail />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/checkout/success" element={<CheckoutSuccess />} />
-              <Route path="/sell" element={<PostListing />} />
-              <Route path="/listings/:id/edit" element={<PostListing />} />
-              <Route path="/my-listings" element={<MyListings />} />
-            </Route>
-          </Routes>
-        </CartProvider>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/home" element={<Home />} />
+                <Route path="/listings/:id" element={<ListingDetail />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/sell" element={<PostListing />} />
+                <Route path="/listings/:id/edit" element={<PostListing />} />
+                <Route path="/my-listings" element={<MyListings />} />
+              </Route>
+            </Routes>
+          </CartProvider>
+        </SocketProvider>
       </AuthProvider>
     </BrowserRouter>
   );
