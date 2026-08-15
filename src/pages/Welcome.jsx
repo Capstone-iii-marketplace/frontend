@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { PenLine } from "lucide-react";
 
+// Public landing page at "/". Fully static — no state, no API calls.
+// The marketing front door: brand header, hero headline, and CTAs.
 function Welcome() {
   return (
     <div className="min-h-screen bg-[#F9FAFB]">

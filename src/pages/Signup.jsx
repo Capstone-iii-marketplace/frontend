@@ -12,6 +12,10 @@ function Signup() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Client-side validation (all fields present, 8+ char password) before
+  // calling signup() from AuthContext, which creates the account and logs
+  // the user in immediately. Always lands on /home — there's no "came from"
+  // page to return to for a brand-new signup.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

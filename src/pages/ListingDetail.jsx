@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/Navbar";
-import { marketplaceApi } from "../api/client";
+import { marketplaceApi, chatApi } from "../api/client";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const STATUS_STYLES = {
   avaliable: "bg-emerald-50 text-emerald-700",
@@ -12,7 +13,7 @@ const STATUS_STYLES = {
 };
 
 const STATUS_LABEL = {
-  avaliable: "Available",
+  available: "Available",
   pending: "Pending",
   sold: "Sold",
   removed: "Removed",
@@ -24,6 +25,7 @@ const PAYMENT_LABEL = {
   both: "Online or in-person",
 };
 
+// Converts integer cents into a display currency string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -32,6 +34,7 @@ function formatPrice(priceCents) {
   });
 }
 
+// Turns a timestamp into relative text like "3h ago".
 function timeAgo(dateString) {
   const diffMs = Date.now() - new Date(dateString).getTime();
   const mins = Math.floor(diffMs / 60000);
@@ -43,6 +46,7 @@ function timeAgo(dateString) {
   return `${days}d ago`;
 }
 
+// Absolute date for the "Posted <timeAgo> · <formatDate>" line.
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
@@ -51,6 +55,7 @@ function formatDate(dateString) {
   });
 }
 
+// "Member since <month year>" text for the seller card.
 function memberSince(dateString) {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "long",
@@ -58,6 +63,7 @@ function memberSince(dateString) {
   });
 }
 
+// Two-letter avatar badge from a seller's name.
 function initials(name = "") {
   return name
     .split(" ")
@@ -67,6 +73,7 @@ function initials(name = "") {
     .join("");
 }
 
+// Small inline SVG icon — no external icon library is used in this project.
 function CartIcon() {
   return (
     <svg
@@ -85,16 +92,22 @@ function CartIcon() {
   );
 }
 
+// Single-listing detail page at /listings/:id.
 function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, isInCart } = useCart();
 
+  const { user } = useAuth();
+  const [chatError, setChatError] = useState(null);
+
   const [listing, setListing] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Local-only "wishlist" heart toggle — not persisted to the backend.
   const [saved, setSaved] = useState(false);
 
+  // Re-fetches the listing whenever the :id route param changes.
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
@@ -163,9 +176,21 @@ function ListingDetail() {
     addToCart(listing);
   }
 
+  // "Buy now" shortcut — adds to cart and jumps straight to checkout in one step.
   function handleCheckout() {
     addToCart(listing);
     navigate("/checkout");
+  }
+
+  // Opening a chat is idempotent server-side — clicking twice lands in the
+  // same thread rather than creating a second one.
+  async function handleMessageSeller() {
+    try {
+      const data = await chatApi.openConversation(listing.id);
+      navigate(`/messages/${data.conversation.id}`);
+    } catch (err) {
+      setChatError(err.message);
+    }
   }
 
   return (
@@ -263,7 +288,22 @@ function ListingDetail() {
                     ` · ${listing.seller.salesCount} sales`}
                 </p>
               </div>
+
+              {/* No point messaging yourself — the API rejects it anyway. */}
+              {listing.seller?.id !== user?.id && (
+                <button
+                  type="button"
+                  onClick={handleMessageSeller}
+                  className="ml-auto rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-gray-900"
+                >
+                  Message
+                </button>
+              )}
             </div>
+
+            {chatError && (
+              <p className="mt-2 text-sm text-rose-600">{chatError}</p>
+            )}
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button

@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
+import { ordersApi } from "../api/client";
 
+// Converts integer cents into a display currency string.
 function formatPrice(priceCents) {
   return (priceCents / 100).toLocaleString("en-US", {
     style: "currency",
@@ -10,8 +13,27 @@ function formatPrice(priceCents) {
   });
 }
 
+// Cart review page. "Place order" starts a Stripe Checkout session covering
+// every item in the cart and redirects there; the cart itself is only
+// cleared once the user lands back on /checkout/success.
 function Checkout() {
   const { items, totalCents, removeFromCart, clearCart } = useCart();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handlePlaceOrder() {
+    setError(null);
+    setIsRedirecting(true);
+    try {
+      const { url } = await ordersApi.createCheckoutSession(
+        items.map((item) => item.listingId),
+      );
+      window.location.href = url;
+    } catch (err) {
+      setError(err.message);
+      setIsRedirecting(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -85,18 +107,20 @@ function Checkout() {
               </span>
             </div>
 
+            {error && (
+              <p className="mt-4 rounded-lg bg-rose-50 p-3 text-center text-sm text-rose-600">
+                {error}
+              </p>
+            )}
+
             <button
               type="button"
-              disabled
-              title="Payment isn't wired up yet"
-              className="mt-4 w-full cursor-not-allowed rounded-lg bg-purple-700 px-5 py-3 text-sm font-medium text-white opacity-50"
+              disabled={isRedirecting}
+              onClick={handlePlaceOrder}
+              className="mt-4 w-full rounded-lg bg-purple-700 px-5 py-3 text-sm font-medium text-white hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Place order
+              {isRedirecting ? "Redirecting to Stripe…" : "Place order"}
             </button>
-            <p className="mt-2 text-center text-xs text-gray-400">
-              Payment isn't connected yet — this is a placeholder for the
-              real checkout flow.
-            </p>
 
             <button
               type="button"

@@ -12,6 +12,9 @@ function Login() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validates the form, calls login() from AuthContext, then sends the user
+  // back to whichever page they were trying to reach before ProtectedRoute
+  // redirected them here (falls back to /home for a direct login).
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
