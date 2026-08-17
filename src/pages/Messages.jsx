@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { chatApi } from '../api/client';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
-import { useWebRTC } from '../hooks/useWebRTC.js';
+import { useCall } from '../context/CallContext.jsx';
 import CallPanel from '../components/CallPanel.jsx';
 
 export default function Messages() {
@@ -11,7 +11,7 @@ export default function Messages() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const socket = useSocket();
-  const call = useWebRTC();
+  const call = useCall();
 
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -128,7 +128,7 @@ export default function Messages() {
               )}
             </header>
 
-            <CallPanel call={call} />
+
 
            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
               {messages.map((m) => (

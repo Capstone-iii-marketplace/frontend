@@ -5,6 +5,9 @@ import { useSocket } from '../context/SocketContext.jsx';
 // a TURN relay would be needed for restrictive NATs but isn't set up here.
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
+const ringtone = new Audio('/sounds/ring.mp3');
+ringtone.loop = true;
+
 // Peers are keyed by user id rather than held as a single connection, so a
 // 1:1 call is just "one entry in the map" and a small broadcast is the same
 // code with several. Signaling events already address payloads by user id.
@@ -136,13 +139,27 @@ export function useWebRTC() {
   const declineCall = useCallback(() => {
     if (!incoming) return;
     socket.emit('call:decline', { callId: incoming.callId });
+    // Reset our own state — the backend notifies the caller separately.
     setIncoming(null);
+    setStatus('idle');
   }, [incoming, socket]);
 
   const endCall = useCallback(() => {
     if (callId) socket.emit('call:end', { callId });
     cleanup();
   }, [callId, socket, cleanup]);
+
+  // Ring while a call is incoming, stop the moment it's answered, declined,
+  // or the caller gives up.
+  useEffect(() => {
+    if (status === 'ringing') {
+      ringtone.currentTime = 0;
+      ringtone.play().catch(() => {});
+    } else {
+      ringtone.pause();
+    }
+    return () => ringtone.pause();
+  }, [status]);
 
   useEffect(() => {
     if (!socket) return;
@@ -229,7 +246,10 @@ export function useWebRTC() {
       }
     };
 
-    const onEnded = () => cleanup();
+    const onEnded = (payload) => {
+      console.log('call:ended received', payload);
+      cleanup();
+    };
 
     socket.on('call:incoming', onIncoming);
     socket.on('call:accepted', onAccepted);
