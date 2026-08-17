@@ -29,7 +29,7 @@ export function SocketProvider({ children }) {
       s.disconnect();
       setSocket(null);
     };
-  }, [user, isLoading]);
+  }, [user?.id, isLoading]);
 
   return (
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
