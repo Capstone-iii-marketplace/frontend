@@ -83,8 +83,12 @@ export const marketplaceApi = {
 };
 
 export const ordersApi = {
-  mine() {
-    return apiRequest("/api/orders/mine");
+  // includeSelling opts into also returning orders on listings this user
+  // sold — off by default so existing callers keep buyer-only results.
+  mine({ includeSelling = false } = {}) {
+    return apiRequest(
+      `/api/orders/mine${includeSelling ? '?includeSelling=true' : ''}`,
+    );
   },
   // Starts a Stripe Checkout for the given listing ids and returns
   // { url } to redirect the browser to.
@@ -133,5 +137,18 @@ export const reviewsApi = {
   },
   remove(id) {
     return apiRequest(`/api/reviews/${id}`, { method: "DELETE" });
+  },
+};
+
+// Public seller profiles — no auth required on the backend.
+export const usersApi = {
+  get(id) {
+    return apiRequest(`/api/users/${id}`);
+  },
+};
+
+export const callsApi = {
+  mine() {
+    return apiRequest('/api/calls/mine');
   },
 };

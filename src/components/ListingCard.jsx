@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 const STATUS_STYLES = {
@@ -6,6 +6,18 @@ const STATUS_STYLES = {
   pending: "bg-amber-50 text-amber-700",
   sold: "bg-gray-100 text-gray-500",
   removed: "bg-gray-100 text-gray-500",
+};
+
+const KIND_LABEL = {
+  item: "Item",
+  session: "Tutoring",
+  post: "Guide",
+};
+
+const KIND_STYLES = {
+  item: "bg-gray-100 text-gray-600",
+  session: "bg-indigo-50 text-indigo-700",
+  post: "bg-sky-50 text-sky-700",
 };
 
 // Converts integer cents (how the backend stores money) into a display string.
@@ -43,6 +55,7 @@ function initials(name = "") {
 // My Listings. The whole card is a Link to the listing's detail page.
 function ListingCard({ listing }) {
   const { addToCart, isInCart } = useCart();
+  const navigate = useNavigate();
   const thumbnail = listing.images?.[0];
   const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.available;
   const inCart = isInCart(listing.id);
@@ -53,6 +66,14 @@ function ListingCard({ listing }) {
     e.preventDefault();
     e.stopPropagation();
     addToCart(listing);
+  }
+
+  // Same stopPropagation need as the cart button — this sits inside the
+  // card's own <Link> to the listing detail page.
+  function handleSellerClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (listing.seller?.id) navigate(`/users/${listing.seller.id}`);
   }
 
   return (
@@ -72,24 +93,36 @@ function ListingCard({ listing }) {
             No photo
           </div>
         )}
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          aria-label={inCart ? "Already in cart" : "Add to cart"}
-          className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold shadow-sm transition ${
-            inCart
-              ? "bg-gray-900 text-white"
-              : "bg-white/90 text-gray-500 hover:bg-gray-900 hover:text-white"
+        {listing.kind === "item" && (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            aria-label={inCart ? "Already in cart" : "Add to cart"}
+            className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold shadow-sm transition ${
+              inCart
+                ? "bg-gray-900 text-white"
+                : "bg-white/90 text-gray-500 hover:bg-gray-900 hover:text-white"
+            }`}
+          >
+            {inCart ? "✓" : "+"}
+          </button>
+        )}
+        <span
+          className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-xs font-medium ${
+            KIND_STYLES[listing.kind] || KIND_STYLES.item
           }`}
         >
-          {inCart ? "✓" : "+"}
-        </button>
+          {KIND_LABEL[listing.kind] || "Item"}
+        </span>
       </div>
 
       <div className="p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="text-lg font-bold text-gray-900">
-            {formatPrice(listing.priceCents)}
+            {listing.kind === "post"
+              ? "Free"
+              : formatPrice(listing.priceCents) +
+                (listing.kind === "session" ? "/hr" : "")}
           </span>
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusClass}`}
@@ -103,17 +136,24 @@ function ListingCard({ listing }) {
         </p>
 
         <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleSellerClick}
+            className="flex items-center gap-1.5 hover:underline"
+          >
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-[10px] font-semibold text-white">
               {initials(listing.seller?.name)}
             </span>
             <span className="text-gray-700">{listing.seller?.name}</span>
             {listing.seller?.verifiedAt && (
-              <span className="text-emerald-600" title="Verified seller">
+              <span
+                className="text-emerald-600"
+                title="Verified CUNY student"
+              >
                 ✓
               </span>
             )}
-          </div>
+          </button>
           <span>{timeAgo(listing.createdAt)}</span>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 
 // Landing page for Stripe's success_url. The webhook (not this page) is
@@ -18,8 +17,6 @@ function CheckoutSuccess() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <NavBar />
-
       <main className="mx-auto max-w-2xl px-6 py-16 text-center">
         <h1 className="font-display text-2xl font-bold text-gray-900">
           Payment successful

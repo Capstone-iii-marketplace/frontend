@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../components/Navbar";
 import { useCart } from "../context/CartContext";
 import { ordersApi } from "../api/client";
 
@@ -37,8 +36,6 @@ function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <NavBar />
-
       <main className="mx-auto max-w-2xl px-6 py-8">
         <Link
           to="/home"

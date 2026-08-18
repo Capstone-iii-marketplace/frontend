@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../components/Navbar";
 import ListingCard from "../components/ListingCard";
 import { marketplaceApi, ordersApi } from "../api/client";
 
@@ -117,8 +116,6 @@ function MyListings() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <NavBar />
-
       <main className="mx-auto max-w-6xl px-6 py-8">
         <h1 className="font-display text-2xl font-bold text-gray-900">
           My Listings
