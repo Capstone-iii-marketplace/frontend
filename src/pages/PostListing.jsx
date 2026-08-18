@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NavBar from "../components/Navbar";
 import { marketplaceApi } from "../api/client";
 
 const PAYMENT_OPTIONS = [
   { value: "both", label: "Online or in-person" },
   { value: "online", label: "Online payment only" },
   { value: "in_person", label: "In-person only" },
+];
+
+const KIND_OPTIONS = [
+  { value: "item", label: "Item", hint: "A physical thing — textbook, dorm gear, etc." },
+  { value: "session", label: "Tutoring / service", hint: "Paid, delivered over video call." },
+  { value: "post", label: "Guide", hint: "Free — advice, a how-to, a write-up." },
 ];
 
 const MAX_PHOTOS = 6;
@@ -47,6 +52,7 @@ function PostListing() {
   const isEditing = Boolean(id);
   const fileInputRef = useRef(null);
 
+  const [kind, setKind] = useState("item");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -66,6 +72,7 @@ function PostListing() {
       .listing(id)
       .then(({ listing }) => {
         if (cancelled) return;
+        setKind(listing.kind || "item");
         setTitle(listing.title || "");
         setDescription(listing.description || "");
         setPrice(
@@ -144,22 +151,31 @@ function PostListing() {
     setError("");
 
     if (!title.trim()) {
-      setError("Give your item a title.");
+      setError("Give your listing a title.");
       return;
     }
-    const priceNumber = Number(price);
-    if (!price || Number.isNaN(priceNumber) || priceNumber < 0) {
-      setError("Enter a valid price.");
-      return;
+
+    // Guides are free — there's no price field to validate for them.
+    let priceCents = 0;
+    if (kind !== "post") {
+      const priceNumber = Number(price);
+      if (!price || Number.isNaN(priceNumber) || priceNumber < 0) {
+        setError("Enter a valid price.");
+        return;
+      }
+      priceCents = Math.round(priceNumber * 100);
     }
 
     setIsSubmitting(true);
     try {
       const payload = {
+        kind,
         title: title.trim(),
         description: description.trim(),
-        priceCents: Math.round(priceNumber * 100),
-        paymentMethods,
+        priceCents,
+        // Payment method choice only makes sense for a physical handoff —
+        // sessions and guides are always delivered/read online.
+        paymentMethods: kind === "item" ? paymentMethods : "online",
         images: photos.map((p) => p.dataUrl),
       };
       const data = isEditing
@@ -178,11 +194,9 @@ function PostListing() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <NavBar />
-
       <main className="mx-auto max-w-2xl px-6 py-8">
         <h1 className="font-display text-2xl font-bold text-gray-900">
-          {isEditing ? "Edit listing" : "Post an item"}
+          {isEditing ? "Edit listing" : "Post a listing"}
         </h1>
         <p className="mt-1 text-sm text-gray-600">
           {isEditing
@@ -197,6 +211,35 @@ function PostListing() {
             onSubmit={handleSubmit}
             className="mt-6 space-y-5 rounded-xl border border-gray-200 bg-white p-6"
           >
+            <div>
+              <span className="text-sm font-medium text-gray-900">
+                What kind of listing is this?
+              </span>
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                {KIND_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setKind(opt.value)}
+                    className={`rounded-lg border px-3 py-2.5 text-left text-sm transition ${
+                      kind === opt.value
+                        ? "border-gray-900 bg-gray-900 text-white"
+                        : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                    }`}
+                  >
+                    <span className="block font-medium">{opt.label}</span>
+                    <span
+                      className={`block text-xs ${
+                        kind === opt.value ? "text-gray-300" : "text-gray-500"
+                      }`}
+                    >
+                      {opt.hint}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <label
                 htmlFor="title"
@@ -231,47 +274,60 @@ function PostListing() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="price"
-                  className="text-sm font-medium text-gray-900"
-                >
-                  Price ($)
-                </label>
-                <input
-                  id="price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="45.00"
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
-                />
-              </div>
+            {kind === "post" ? (
+              <p className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-600">
+                Guides are free — no price or payment method needed. Readers
+                can message you or request a call.
+              </p>
+            ) : (
+              <div
+                className={`grid gap-4 ${
+                  kind === "session" ? "grid-cols-1" : "grid-cols-2"
+                }`}
+              >
+                <div>
+                  <label
+                    htmlFor="price"
+                    className="text-sm font-medium text-gray-900"
+                  >
+                    Price ($){kind === "session" ? " per hour" : ""}
+                  </label>
+                  <input
+                    id="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder={kind === "session" ? "25.00" : "45.00"}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm placeholder:text-gray-400"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="paymentMethods"
-                  className="text-sm font-medium text-gray-900"
-                >
-                  Payment
-                </label>
-                <select
-                  id="paymentMethods"
-                  value={paymentMethods}
-                  onChange={(e) => setPaymentMethods(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm"
-                >
-                  {PAYMENT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                {kind === "item" && (
+                  <div>
+                    <label
+                      htmlFor="paymentMethods"
+                      className="text-sm font-medium text-gray-900"
+                    >
+                      Payment
+                    </label>
+                    <select
+                      id="paymentMethods"
+                      value={paymentMethods}
+                      onChange={(e) => setPaymentMethods(e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm"
+                    >
+                      {PAYMENT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             <div>
               <span className="text-sm font-medium text-gray-900">Photos</span>

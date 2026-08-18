@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../components/Navbar";
 import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthContext";
-import { marketplaceApi } from "../api/client";
+import { marketplaceApi, chatApi, callsApi, ordersApi } from "../api/client";
+
+const KIND_TABS = [
+  { value: "all", label: "All" },
+  { value: "item", label: "Items" },
+  { value: "session", label: "Tutoring & Services" },
+  { value: "post", label: "Student Guides" },
+];
 
 // Main marketplace browse/search page.
 function Home() {
@@ -12,6 +18,12 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [kindTab, setKindTab] = useState("all");
+  const [activity, setActivity] = useState({
+    conversations: [],
+    calls: [],
+    orders: [],
+  });
 
   // Fetches all active listings once on mount. The `cancelled` flag avoids
   // calling setState after the component has unmounted (e.g. user navigated
@@ -36,20 +48,44 @@ function Home() {
     };
   }, []);
 
+  // Recent activity for the signed-in user — three independent lists, one
+  // request each, shown together in a dashboard section.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+
+    Promise.all([
+      chatApi.conversations().catch(() => ({ conversations: [] })),
+      callsApi.mine().catch(() => ({ calls: [] })),
+      ordersApi.mine().catch(() => ({ orders: [] })),
+    ]).then(([convData, callData, orderData]) => {
+      if (cancelled) return;
+      setActivity({
+        conversations: (convData.conversations || []).slice(0, 5),
+        calls: (callData.calls || []).slice(0, 5),
+        orders: (orderData.orders || []).slice(0, 5),
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
   // Client-side filter over the already-loaded listings — no server round
-  // trip needed for search since the whole catalog is already in memory.
+  // trip needed for search or the kind tabs since the whole catalog is
+  // already in memory.
   const filteredListings = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return listings;
-    return listings.filter((listing) =>
-      listing.title.toLowerCase().includes(term),
-    );
-  }, [listings, search]);
+    return listings.filter((listing) => {
+      if (kindTab !== "all" && listing.kind !== kindTab) return false;
+      if (term && !listing.title.toLowerCase().includes(term)) return false;
+      return true;
+    });
+  }, [listings, search, kindTab]);
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <NavBar />
-
       <main className="mx-auto max-w-6xl px-6 py-8">
         <h1 className="font-display text-2xl font-bold text-gray-900">
           {isAuthenticated
@@ -85,14 +121,112 @@ function Home() {
           )}
         </div>
 
+        {isAuthenticated && (
+          <section className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Recent conversations
+              </h2>
+              {activity.conversations.length === 0 ? (
+                <p className="mt-2 text-xs text-gray-500">
+                  No conversations yet.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {activity.conversations.map((c) => {
+                    const other =
+                      c.buyer.id === user?.id
+                        ? c.listing.seller.name
+                        : c.buyer.name;
+                    return (
+                      <li key={c.id}>
+                        <Link
+                          to={`/messages/${c.id}`}
+                          className="block text-xs text-gray-700 hover:text-gray-900"
+                        >
+                          <span className="font-medium">{other}</span> ·{" "}
+                          {c.listing.title}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Recent calls
+              </h2>
+              {activity.calls.length === 0 ? (
+                <p className="mt-2 text-xs text-gray-500">No calls yet.</p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {activity.calls.map((call) => {
+                    const other =
+                      call.caller.id === user?.id
+                        ? call.callee.name
+                        : call.caller.name;
+                    return (
+                      <li key={call.id} className="text-xs text-gray-700">
+                        <span className="font-medium">{other}</span>
+                        {call.conversation?.listing?.title &&
+                          ` · ${call.conversation.listing.title}`}
+                        <span className="ml-1 capitalize text-gray-400">
+                          ({call.status})
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Recent orders
+              </h2>
+              {activity.orders.length === 0 ? (
+                <p className="mt-2 text-xs text-gray-500">No orders yet.</p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {activity.orders.map((o) => (
+                    <li key={o.id} className="text-xs text-gray-700">
+                      {o.listing?.title}{" "}
+                      <span className="text-gray-400">({o.status})</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        )}
+
         {error && (
           <p className="mt-6 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">
             Couldn't load listings: {error}
           </p>
         )}
 
+        <div className="mt-8 flex gap-1 border-b border-gray-200">
+          {KIND_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setKindTab(tab.value)}
+              className={`px-4 py-2 text-sm font-medium ${
+                kindTab === tab.value
+                  ? "border-b-2 border-gray-900 text-gray-900"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {isLoading ? (
-          <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
@@ -112,7 +246,7 @@ function Home() {
             No listings found.
           </p>
         ) : (
-          <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {filteredListings.map((listing) => (
               <ListingCard key={listing.id} listing={listing} />
             ))}
