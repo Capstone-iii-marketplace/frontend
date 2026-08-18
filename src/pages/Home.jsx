@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthContext";
-import { marketplaceApi, chatApi, callsApi, ordersApi } from "../api/client";
+import { marketplaceApi } from "../api/client";
 
 const KIND_TABS = [
   { value: "all", label: "All" },
@@ -19,11 +19,6 @@ function Home() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [kindTab, setKindTab] = useState("all");
-  const [activity, setActivity] = useState({
-    conversations: [],
-    calls: [],
-    orders: [],
-  });
 
   // Fetches all active listings once on mount. The `cancelled` flag avoids
   // calling setState after the component has unmounted (e.g. user navigated
@@ -47,30 +42,6 @@ function Home() {
       cancelled = true;
     };
   }, []);
-
-  // Recent activity for the signed-in user — three independent lists, one
-  // request each, shown together in a dashboard section.
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    let cancelled = false;
-
-    Promise.all([
-      chatApi.conversations().catch(() => ({ conversations: [] })),
-      callsApi.mine().catch(() => ({ calls: [] })),
-      ordersApi.mine().catch(() => ({ orders: [] })),
-    ]).then(([convData, callData, orderData]) => {
-      if (cancelled) return;
-      setActivity({
-        conversations: (convData.conversations || []).slice(0, 5),
-        calls: (callData.calls || []).slice(0, 5),
-        orders: (orderData.orders || []).slice(0, 5),
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated]);
 
   // Client-side filter over the already-loaded listings — no server round
   // trip needed for search or the kind tabs since the whole catalog is
@@ -120,87 +91,6 @@ function Home() {
             </Link>
           )} */}
         </div>
-
-        {isAuthenticated && (
-          <section className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h2 className="text-sm font-semibold text-gray-900">
-                Recent conversations
-              </h2>
-              {activity.conversations.length === 0 ? (
-                <p className="mt-2 text-xs text-gray-500">
-                  No conversations yet.
-                </p>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {activity.conversations.map((c) => {
-                    const other =
-                      c.buyer.id === user?.id
-                        ? c.listing.seller.name
-                        : c.buyer.name;
-                    return (
-                      <li key={c.id}>
-                        <Link
-                          to={`/messages/${c.id}`}
-                          className="block text-xs text-gray-700 hover:text-gray-900"
-                        >
-                          <span className="font-medium">{other}</span> ·{" "}
-                          {c.listing.title}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h2 className="text-sm font-semibold text-gray-900">
-                Recent calls
-              </h2>
-              {activity.calls.length === 0 ? (
-                <p className="mt-2 text-xs text-gray-500">No calls yet.</p>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {activity.calls.map((call) => {
-                    const other =
-                      call.caller.id === user?.id
-                        ? call.callee.name
-                        : call.caller.name;
-                    return (
-                      <li key={call.id} className="text-xs text-gray-700">
-                        <span className="font-medium">{other}</span>
-                        {call.conversation?.listing?.title &&
-                          ` · ${call.conversation.listing.title}`}
-                        <span className="ml-1 capitalize text-gray-400">
-                          ({call.status})
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h2 className="text-sm font-semibold text-gray-900">
-                Recent orders
-              </h2>
-              {activity.orders.length === 0 ? (
-                <p className="mt-2 text-xs text-gray-500">No orders yet.</p>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {activity.orders.map((o) => (
-                    <li key={o.id} className="text-xs text-gray-700">
-                      {o.listing?.title}{" "}
-                      <span className="text-gray-400">({o.status})</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
-        )}
 
         {error && (
           <p className="mt-6 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-600">
