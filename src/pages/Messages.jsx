@@ -3,12 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { chatApi } from '../api/client';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
+import { useCall } from '../context/CallContext.jsx';
+import CallPanel from '../components/CallPanel.jsx';
 
 export default function Messages() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const socket = useSocket();
+  const call = useCall();
 
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -111,13 +114,23 @@ export default function Messages() {
 
         {id && (
           <>
-            <header className="border-b border-base-300 p-3">
+           <header className="flex items-center border-b border-base-300 p-3">
               <span className="text-sm font-semibold">
                 {active?.listing.title ?? 'Conversation'}
               </span>
+              {call.status === 'idle' && (
+                <button
+                  onClick={() => call.startCall(id)}
+                  className="ml-auto rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:border-gray-900"
+                >
+                  Video call
+                </button>
+              )}
             </header>
 
-            <div className="flex-1 space-y-2 overflow-y-auto p-4">
+
+
+           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
               {messages.map((m) => (
                 <div
                   key={m.id}
