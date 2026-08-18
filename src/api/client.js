@@ -52,6 +52,12 @@ export const authApi = {
   me() {
     return apiRequest("/api/auth/me");
   },
+  updateMe(payload) {
+    return apiRequest("/api/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+  },
 };
 
 // Listing CRUD: browsing, the current user's own listings, and create/edit/delete.
@@ -87,7 +93,7 @@ export const ordersApi = {
   // sold — off by default so existing callers keep buyer-only results.
   mine({ includeSelling = false } = {}) {
     return apiRequest(
-      `/api/orders/mine${includeSelling ? '?includeSelling=true' : ''}`,
+      `/api/orders/mine${includeSelling ? "?includeSelling=true" : ""}`,
     );
   },
   // Starts a Stripe Checkout for the given listing ids and returns
@@ -149,6 +155,6 @@ export const usersApi = {
 
 export const callsApi = {
   mine() {
-    return apiRequest('/api/calls/mine');
+    return apiRequest("/api/calls/mine");
   },
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
+import SellerReviews from "../components/SellerReviews";
 import { usersApi, chatApi } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCall } from "../context/CallContext.jsx";
@@ -128,9 +129,17 @@ function UserProfile() {
         </Link>
 
         <div className="mt-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-900 text-lg font-semibold text-white">
-            {initials(profile.name)}
-          </span>
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt={profile.name}
+              className="h-14 w-14 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-900 text-lg font-semibold text-white">
+              {initials(profile.name)}
+            </span>
+          )}
           <div>
             <p className="flex items-center gap-1.5 text-lg font-bold text-gray-900">
               {profile.name}
@@ -143,6 +152,11 @@ function UserProfile() {
             <p className="text-xs text-gray-500">
               Member since {memberSince(profile.createdAt)}
             </p>
+            {(profile.major || profile.semester) && (
+              <p className="mt-1 text-sm text-gray-700">
+                {[profile.major, profile.semester].filter(Boolean).join(" · ")}
+              </p>
+            )}
           </div>
 
           {/* No point messaging or calling yourself. */}
@@ -175,6 +189,8 @@ function UserProfile() {
         </div>
 
         {chatError && <p className="mt-2 text-sm text-rose-600">{chatError}</p>}
+
+        <SellerReviews sellerId={profile.id} />
 
         <h2 className="mt-8 text-sm font-semibold text-gray-900">Listings</h2>
         {!profile.listings || profile.listings.length === 0 ? (

@@ -64,6 +64,10 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      // Lets a component (Account settings) push a freshly-saved user
+      // straight into context, so the navbar/profile update without a
+      // reload. setUser from useState is already stable, no dep needed.
+      setUser,
       isAuthenticated: Boolean(user),// true/false
       isLoading,
       login,

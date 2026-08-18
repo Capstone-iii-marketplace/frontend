@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthContext";
 import { useCall } from "../context/CallContext.jsx";
-import { ordersApi, marketplaceApi, chatApi } from "../api/client";
+import { ordersApi, marketplaceApi, chatApi, authApi } from "../api/client";
 
 const TABS = [
   { value: "overview", label: "Overview" },
@@ -82,7 +82,7 @@ function SessionRow({ order, otherName, onJoin, joinDisabledReason }) {
 // the person who booked and the person delivering), listings, and basic
 // account info. Distinct from the public profile at /users/:id.
 function Account() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const call = useCall();
   const navigate = useNavigate();
 
@@ -93,6 +93,41 @@ function Account() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [joinError, setJoinError] = useState(null);
+
+  const [profileForm, setProfileForm] = useState({
+    major: "",
+    semester: "",
+    avatarUrl: "",
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaveError, setProfileSaveError] = useState("");
+
+  // user loads asynchronously (an initial /me call), so this can't be the
+  // useState initializer above — it has to re-sync once user actually
+  // arrives, or the form stays frozen on empty strings forever.
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        major: user.major || "",
+        semester: user.semester || "",
+        avatarUrl: user.avatarUrl || "",
+      });
+    }
+  }, [user]);
+
+  async function handleSaveProfile(e) {
+    e.preventDefault();
+    setSavingProfile(true);
+    setProfileSaveError("");
+    try {
+      const data = await authApi.updateMe(profileForm);
+      setUser(data.user);
+    } catch (err) {
+      setProfileSaveError(err.message);
+    } finally {
+      setSavingProfile(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -394,33 +429,104 @@ function Account() {
               ))}
 
             {tab === "settings" && (
-              <div className="max-w-md space-y-4 rounded-xl border border-gray-200 bg-white p-5">
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-400">
-                    Name
+              <div className="max-w-md space-y-6">
+                <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
+                  <div>
+                    <p className="text-xs font-medium uppercase text-gray-400">
+                      Name
+                    </p>
+                    <p className="text-sm text-gray-900">{user?.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase text-gray-400">
+                      Email
+                    </p>
+                    <p className="text-sm text-gray-900">{user?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase text-gray-400">
+                      Verification
+                    </p>
+                    <p className="text-sm text-gray-900">
+                      {user?.verifiedAt
+                        ? "Verified CUNY student"
+                        : "Not verified yet"}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    Saved payment methods aren't stored here — Stripe Checkout
+                    collects your card at the time of each purchase.
                   </p>
-                  <p className="text-sm text-gray-900">{user?.name}</p>
                 </div>
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-400">
-                    Email
+
+                <form
+                  onSubmit={handleSaveProfile}
+                  className="space-y-4 rounded-xl border border-gray-200 bg-white p-5"
+                >
+                  <h2 className="text-sm font-semibold text-gray-900">
+                    Profile info
+                  </h2>
+                  <p className="-mt-2 text-xs text-gray-500">
+                    Shown on your public profile to anyone signed in.
                   </p>
-                  <p className="text-sm text-gray-900">{user?.email}</p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-400">
-                    Verification
-                  </p>
-                  <p className="text-sm text-gray-900">
-                    {user?.verifiedAt
-                      ? "Verified CUNY student"
-                      : "Not verified yet"}
-                  </p>
-                </div>
-                <p className="text-xs text-gray-400">
-                  Saved payment methods aren't stored here — Stripe Checkout
-                  collects your card at the time of each purchase.
-                </p>
+
+                  <div>
+                    <label className="text-xs font-medium uppercase text-gray-400">
+                      Major
+                    </label>
+                    <input
+                      value={profileForm.major}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, major: e.target.value })
+                      }
+                      placeholder="Computer Science"
+                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium uppercase text-gray-400">
+                      Semester
+                    </label>
+                    <input
+                      value={profileForm.semester}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, semester: e.target.value })
+                      }
+                      placeholder="Junior"
+                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-medium uppercase text-gray-400">
+                      Photo URL
+                    </label>
+                    <input
+                      value={profileForm.avatarUrl}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          avatarUrl: e.target.value,
+                        })
+                      }
+                      placeholder="https://..."
+                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm"
+                    />
+                  </div>
+
+                  {profileSaveError && (
+                    <p className="text-sm text-rose-600">{profileSaveError}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  >
+                    {savingProfile ? "Saving…" : "Save changes"}
+                  </button>
+                </form>
               </div>
             )}
           </div>
