@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 const STATUS_STYLES = {
-  avaliable: "bg-emerald-50 text-emerald-700",
+  available: "bg-emerald-50 text-emerald-700",
   pending: "bg-amber-50 text-amber-700",
   sold: "bg-gray-100 text-gray-500",
   removed: "bg-gray-100 text-gray-500",
@@ -44,7 +44,7 @@ function initials(name = "") {
 function ListingCard({ listing }) {
   const { addToCart, isInCart } = useCart();
   const thumbnail = listing.images?.[0];
-  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.avaliable;
+  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.available;
   const inCart = isInCart(listing.id);
 
   // stopPropagation is required here: without it, clicking the cart button

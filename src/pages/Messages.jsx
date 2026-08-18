@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { chatApi } from '../api/client';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useSocket } from '../context/SocketContext.jsx';
-import { useCall } from '../context/CallContext.jsx';
-import CallPanel from '../components/CallPanel.jsx';
+import { useEffect, useRef, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { chatApi } from "../api/client";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useSocket } from "../context/SocketContext.jsx";
+import { useCall } from "../context/CallContext.jsx";
+import { ArrowLeft } from "lucide-react";
+import NavBar from "../components/Navbar";
+import CallPanel from "../components/CallPanel.jsx";
 
 export default function Messages() {
   const { id } = useParams();
@@ -15,8 +17,8 @@ export default function Messages() {
 
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
-  const [draft, setDraft] = useState('');
-  const [error, setError] = useState('');
+  const [draft, setDraft] = useState("");
+  const [error, setError] = useState("");
   const bottomRef = useRef(null);
 
   // Inbox list — loaded once.
@@ -42,7 +44,7 @@ export default function Messages() {
   useEffect(() => {
     if (!socket || !id) return;
 
-    socket.emit('conversation:join', id, (res) => {
+    socket.emit("conversation:join", id, (res) => {
       if (res?.error) setError(res.error);
     });
 
@@ -50,16 +52,16 @@ export default function Messages() {
       if (message.conversationId !== id) return;
       setMessages((prev) => [...prev, message]);
     };
-    socket.on('message:new', onNew);
+    socket.on("message:new", onNew);
 
     return () => {
-      socket.off('message:new', onNew);
-      socket.emit('conversation:leave', id);
+      socket.off("message:new", onNew);
+      socket.emit("conversation:leave", id);
     };
   }, [socket, id]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const send = () => {
@@ -68,8 +70,8 @@ export default function Messages() {
 
     // Clear immediately — the message comes back through message:new, which
     // the sender is also in the room for, so no optimistic append needed.
-    setDraft('');
-    socket.emit('message:send', { conversationId: id, body }, (res) => {
+    setDraft("");
+    socket.emit("message:send", { conversationId: id, body }, (res) => {
       if (res?.error) {
         setError(res.error);
         setDraft(body);
@@ -80,87 +82,96 @@ export default function Messages() {
   const active = conversations.find((c) => c.id === id);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] border-t border-base-300">
-      <aside className="w-64 shrink-0 overflow-y-auto border-r border-base-300">
-        {conversations.length === 0 && (
-          <p className="p-4 text-sm opacity-60">No conversations yet.</p>
-        )}
-        {conversations.map((c) => {
-          const other =
-            c.buyer.id === user?.id ? c.listing.seller.name : c.buyer.name;
-          return (
-            <button
-              key={c.id}
-              onClick={() => navigate(`/messages/${c.id}`)}
-              className={`block w-full border-b border-base-300 p-3 text-left hover:bg-base-200 ${
-                c.id === id ? 'bg-base-200' : ''
-              }`}
-            >
-              <span className="block text-sm font-semibold">{other}</span>
-              <span className="block truncate text-xs opacity-60">
-                {c.listing.title}
-              </span>
-            </button>
-          );
-        })}
-      </aside>
-
-      <section className="flex flex-1 flex-col">
-        {!id && (
-          <p className="m-auto text-sm opacity-60">
-            Select a conversation to start chatting.
-          </p>
-        )}
-
-        {id && (
-          <>
-           <header className="flex items-center border-b border-base-300 p-3">
-              <span className="text-sm font-semibold">
-                {active?.listing.title ?? 'Conversation'}
-              </span>
-              {call.status === 'idle' && (
-                <button
-                  onClick={() => call.startCall(id)}
-                  className="ml-auto rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:border-gray-900"
-                >
-                  Video call
-                </button>
-              )}
-            </header>
-
-
-
-           <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`chat ${
-                    m.sender.id === user?.id ? 'chat-end' : 'chat-start'
-                  }`}
-                >
-                  <div className="chat-bubble">{m.body}</div>
-                </div>
-              ))}
-              <div ref={bottomRef} />
-            </div>
-
-            {error && <p className="px-4 pb-2 text-sm text-error">{error}</p>}
-
-            <div className="flex gap-2 border-t border-base-300 p-3">
-              <input
-                className="input input-bordered flex-1"
-                value={draft}
-                placeholder="Type a message..."
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && send()}
-              />
-              <button className="btn btn-primary" onClick={send}>
-                Send
+    <>
+      <NavBar></NavBar>
+      <div className="flex h-[calc(100vh-4rem)] border-t border-base-300">
+        <aside className="w-64 shrink-0 overflow-y-auto border-r border-base-300">
+          {conversations.length === 0 && (
+            <p className="p-4 text-sm opacity-60">No conversations yet.</p>
+          )}
+          {conversations.map((c) => {
+            const other =
+              c.buyer.id === user?.id ? c.listing.seller.name : c.buyer.name;
+            return (
+              <button
+                key={c.id}
+                onClick={() => navigate(`/messages/${c.id}`)}
+                className={`block w-full border-b border-base-300 p-3 text-left hover:bg-base-200 ${
+                  c.id === id ? "bg-base-200" : ""
+                }`}
+              >
+                <span className="block text-sm font-semibold">{other}</span>
+                <span className="block truncate text-xs opacity-60">
+                  {c.listing.title}
+                </span>
               </button>
-            </div>
-          </>
-        )}
-      </section>
-    </div>
+            );
+          })}
+        </aside>
+
+        <section className="flex flex-1 flex-col">
+          {!id && (
+            <p className="m-auto text-sm opacity-60">
+              Select a conversation to start chatting.
+            </p>
+          )}
+
+          {id && (
+            <>
+              <header className="flex items-center border-b border-base-300 p-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/messages")}
+                  aria-label="Back to conversations"
+                  className="mr-2 rounded-lg p-1.5 hover:bg-base-200"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <span className="text-sm font-semibold">
+                  {active?.listing.title ?? "Conversation"}
+                </span>
+                {call.status === "idle" && (
+                  <button
+                    onClick={() => call.startCall(id)}
+                    className="ml-auto rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:border-gray-900"
+                  >
+                    Video call
+                  </button>
+                )}
+              </header>
+
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`chat ${
+                      m.sender.id === user?.id ? "chat-end" : "chat-start"
+                    }`}
+                  >
+                    <div className="chat-bubble">{m.body}</div>
+                  </div>
+                ))}
+                <div ref={bottomRef} />
+              </div>
+
+              {error && <p className="px-4 pb-2 text-sm text-error">{error}</p>}
+
+              <div className="flex gap-2 border-t border-base-300 p-3">
+                <input
+                  className="input input-bordered flex-1"
+                  value={draft}
+                  placeholder="Type a message..."
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && send()}
+                />
+                <button className="btn btn-primary" onClick={send}>
+                  Send
+                </button>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+    </>
   );
 }

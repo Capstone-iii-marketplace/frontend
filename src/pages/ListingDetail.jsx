@@ -4,9 +4,10 @@ import NavBar from "../components/Navbar";
 import { marketplaceApi, chatApi } from "../api/client";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import SellerReviews from "../components/SellerReviews";
 
 const STATUS_STYLES = {
-  avaliable: "bg-emerald-50 text-emerald-700",
+  available: "bg-emerald-50 text-emerald-700",
   pending: "bg-amber-50 text-amber-700",
   sold: "bg-gray-100 text-gray-500",
   removed: "bg-gray-100 text-gray-500",
@@ -168,7 +169,7 @@ function ListingDetail() {
   }
 
   const image = listing.images?.[0];
-  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.avaliable;
+  const statusClass = STATUS_STYLES[listing.status] || STATUS_STYLES.available;
   const statusLabel = STATUS_LABEL[listing.status] || listing.status;
   const inCart = isInCart(listing.id);
 
@@ -300,6 +301,7 @@ function ListingDetail() {
                 </button>
               )}
             </div>
+            <SellerReviews sellerId={listing.seller?.id} />
 
             {chatError && (
               <p className="mt-2 text-sm text-rose-600">{chatError}</p>
@@ -309,7 +311,7 @@ function ListingDetail() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={listing.status !== "avaliable"}
+                disabled={listing.status !== "available"}
                 className={`flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition ${
                   inCart
                     ? "border-gray-900 bg-gray-900 text-white"
@@ -322,7 +324,7 @@ function ListingDetail() {
               <button
                 type="button"
                 onClick={handleCheckout}
-                disabled={listing.status !== "avaliable"}
+                disabled={listing.status !== "available"}
                 className="rounded-lg bg-purple-700 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Checkout
