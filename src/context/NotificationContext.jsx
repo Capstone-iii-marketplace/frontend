@@ -6,6 +6,7 @@ import {
   useState,
 } from 'react';
 import { useSocket } from './SocketContext.jsx';
+import { chatApi } from '../api/client';
 
 const NotificationContext = createContext(null);
 
@@ -26,6 +27,33 @@ export function NotificationProvider({ children }) {
       return next;
     });
   }, []);
+
+  // Seeds unread counts from persisted Message.readAt on load/refresh —
+  // otherwise the badge would start empty until the next live event.
+  useEffect(() => {
+    if (!socket) return;
+    let cancelled = false;
+
+    chatApi
+      .conversations()
+      .then((data) => {
+        if (cancelled) return;
+        const initial = {};
+        for (const c of data.conversations) {
+          if (c.unreadCount > 0) initial[c.id] = c.unreadCount;
+        }
+        // Merge rather than replace — a live event may have already landed
+        // while this fetch was in flight.
+        setUnread((prev) => ({ ...initial, ...prev }));
+      })
+      .catch(() => {
+        // Non-fatal — the badge just starts empty if this fails.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (!socket) return;
