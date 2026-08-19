@@ -42,7 +42,7 @@ function Login() {
     // contrast stays even across the animation's light and dark frames — so
     // the type needs no text-shadow to survive.
     <GifBackground
-      src="/color.gif"
+      src="/color.mp4"
       overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
       <NavBar />

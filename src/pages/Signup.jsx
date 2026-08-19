@@ -45,7 +45,7 @@ function Signup() {
 
   return (
     <GifBackground
-      src="/color.gif"
+      src="/color.mp4"
       overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
       <NavBar />

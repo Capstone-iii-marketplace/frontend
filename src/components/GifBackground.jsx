@@ -1,15 +1,19 @@
 // Full-bleed animated background for a page section.
 //
-// Renders the GIF as an absolutely-positioned layer and its children above it.
-// The parent it's dropped into must be `relative` — or just use this as the
-// outermost wrapper, which is what it does by default.
+// Renders the animation as an absolutely-positioned layer and its children
+// above it. The parent it's dropped into must be `relative` — or just use this
+// as the outermost wrapper, which is what it does by default.
 //
-// A note on sharpness: the source GIFs are ~480px wide and get stretched
-// across a full viewport, so they can't be crisp — there simply aren't enough
-// pixels. Rather than let that read as a low-quality image, the layers below
-// commit to softness: overscan and drift give it motion, a slight blur hides
-// the upscaling, and grain breaks up the colour banding GIF's 256-colour
-// palette produces on smooth gradients.
+// `src` takes either a video or a GIF and picks the right element. Video is
+// worth preferring: GIF caps at 256 colours, which bands badly across the
+// smooth gradients these backgrounds use, and the same footage encodes far
+// smaller as H.264.
+//
+// A note on sharpness: the original sources are ~480px wide and get stretched
+// across a full viewport, so they can't be crisp — there aren't enough pixels.
+// Rather than let that read as a low-quality image, the layers below commit to
+// softness: overscan and drift give it motion, a slight blur hides the
+// upscaling, and grain breaks up any remaining banding.
 function GifBackground({
   src,
   children,
@@ -21,9 +25,12 @@ function GifBackground({
   vignette = true,
   grain = true,
 }) {
+  const isVideo = /\.(mp4|webm|mov)$/i.test(src);
+  const mediaClass = `h-full w-full object-cover ${soften ? "blur-[2px]" : ""}`;
+
   return (
     <div className={`relative min-h-screen overflow-hidden ${className}`}>
-      {/* Transform on the wrapper, filter on the image. A filtered element
+      {/* Transform on the wrapper, filter on the media. A filtered element
           rasterises to its own texture, so animating an ancestor slides that
           texture around instead of re-blurring a full-screen image every
           frame — the same two classes on one element would do exactly that.
@@ -33,12 +40,23 @@ function GifBackground({
           animate ? "motion-safe:animate-drift scale-110" : "scale-105"
         }`}
       >
-        <img
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className={`h-full w-full object-cover ${soften ? "blur-[2px]" : ""}`}
-        />
+        {isVideo ? (
+          // playsInline matters: without it iOS Safari refuses to autoplay
+          // inline and throws the video fullscreen instead. muted is what
+          // makes autoplay permissible at all.
+          <video
+            src={src}
+            className={mediaClass}
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+        ) : (
+          <img src={src} alt="" aria-hidden="true" className={mediaClass} />
+        )}
       </div>
 
       {overlay !== "none" && <div className={`absolute inset-0 ${overlay}`} />}

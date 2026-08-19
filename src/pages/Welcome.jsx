@@ -10,7 +10,7 @@ function Welcome() {
     // A dark gradient ground means the type stays readable whichever GIF is
     // dropped in — light frames, dark frames, or a swap for a different file.
     <GifBackground
-      src="/sea.gif"
+      src="/sea.mp4"
       overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
       <NavBar />
