@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://sell-me-a-pen.onrender.com/api/:path*"
+      "destination": "https://backend-55py.onrender.com/api/:path*"
     },
     {
       "source": "/socket.io/:path*",
-      "destination": "https://sell-me-a-pen.onrender.com/socket.io/:path*"
+      "destination": "https://backend-55py.onrender.com/socket.io/:path*"
     },
     {
       "source": "/health",
-      "destination": "https://sell-me-a-pen.onrender.com/health"
+      "destination": "https://backend-55py.onrender.com/health"
     },
     {
       "source": "/(.*)",
