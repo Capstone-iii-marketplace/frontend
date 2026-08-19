@@ -5,6 +5,14 @@
       "destination": "https://backend-55py.onrender.com/api/:path*"
     },
     {
+      "source": "/socket.io",
+      "destination": "https://backend-55py.onrender.com/socket.io"
+    },
+    {
+      "source": "/socket.io/",
+      "destination": "https://backend-55py.onrender.com/socket.io/"
+    },
+    {
       "source": "/socket.io/:path*",
       "destination": "https://backend-55py.onrender.com/socket.io/:path*"
     },
