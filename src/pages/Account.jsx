@@ -1,9 +1,38 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ListingCard from "../components/ListingCard";
 import { useAuth } from "../context/AuthContext";
 import { useCall } from "../context/CallContext.jsx";
 import { ordersApi, marketplaceApi, chatApi, authApi } from "../api/client";
+
+// Downscales and re-encodes the picked file in the browser so the resulting
+// data URL stays a reasonable size — same approach PostListing.jsx uses for
+// listing photos, just smaller since this only ever renders as a small
+// circular avatar.
+function fileToDataUrl(file, maxDimension = 400, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Couldn't read that file"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("That file isn't a valid image"));
+      img.onload = () => {
+        const scale = Math.min(
+          1,
+          maxDimension / Math.max(img.width, img.height),
+        );
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 const TABS = [
   { value: "overview", label: "Overview" },
@@ -101,6 +130,25 @@ function Account() {
   });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaveError, setProfileSaveError] = useState("");
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
+  const avatarFileInputRef = useRef(null);
+
+  async function handleAvatarFile(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow picking the same file again later
+    if (!file || !file.type.startsWith("image/")) return;
+
+    setIsProcessingAvatar(true);
+    setProfileSaveError("");
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setProfileForm((prev) => ({ ...prev, avatarUrl: dataUrl }));
+    } catch (err) {
+      setProfileSaveError(err.message || "Couldn't process that photo.");
+    } finally {
+      setIsProcessingAvatar(false);
+    }
+  }
 
   // user loads asynchronously (an initial /me call), so this can't be the
   // useState initializer above — it has to re-sync once user actually
@@ -500,18 +548,47 @@ function Account() {
 
                   <div>
                     <label className="text-xs font-medium uppercase text-gray-400">
-                      Photo URL
+                      Photo
                     </label>
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full bg-gray-100">
+                        {profileForm.avatarUrl ? (
+                          <img
+                            src={profileForm.avatarUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => avatarFileInputRef.current?.click()}
+                        disabled={isProcessingAvatar}
+                        className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 disabled:opacity-50"
+                      >
+                        {isProcessingAvatar ? "Processing…" : "Choose photo"}
+                      </button>
+                      {profileForm.avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setProfileForm((prev) => ({
+                              ...prev,
+                              avatarUrl: "",
+                            }))
+                          }
+                          className="text-xs text-gray-400 hover:text-gray-600"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
                     <input
-                      value={profileForm.avatarUrl}
-                      onChange={(e) =>
-                        setProfileForm({
-                          ...profileForm,
-                          avatarUrl: e.target.value,
-                        })
-                      }
-                      placeholder="https://..."
-                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 text-sm"
+                      ref={avatarFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarFile}
+                      className="hidden"
                     />
                   </div>
 
