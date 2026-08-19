@@ -51,7 +51,18 @@ function NavBar({ dark = false }) {
             <NavLink to="/checkout" className="btn btn-ghost">
               Cart{count > 0 ? ` (${count})` : ""}
             </NavLink>
-            <NavLink to="/account" className="btn btn-ghost">
+            <NavLink to="/account" className="btn btn-ghost gap-2">
+              <span className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-gray-900 text-[10px] font-semibold text-white">
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  user?.name?.[0]?.toUpperCase() || "?"
+                )}
+              </span>
               {user?.name?.split(" ")[0] || "Account"}
             </NavLink>
             <button
