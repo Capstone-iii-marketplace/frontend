@@ -135,7 +135,7 @@ function ListingCard({ listing }) {
           {listing.title}
         </p>
 
-        <div className="mt-3 flex items-center justify-between pt-1 text-xs text-gray-500 [margin-top:auto]">
+        <div className="mt-auto flex items-center justify-between pt-3 text-xs text-gray-500">
           <button
             type="button"
             onClick={handleSellerClick}
