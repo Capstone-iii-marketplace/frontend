@@ -45,11 +45,11 @@ function Signup() {
 
   return (
     <GifBackground
-      // src="/white.gif"
+      src="/color.gif"
       overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
       <NavBar />
-      <div className="flex min-h-[calc(100vh-73px)] items-center justify-center px-4 py-12">
+      <div className="flex min-h-[calc(100dvh-3.5rem)] items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm">
           <div className="text-center">
             <h1 className="font-display text-4xl font-bold tracking-tight text-gray-900">

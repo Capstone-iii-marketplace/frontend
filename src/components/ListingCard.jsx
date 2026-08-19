@@ -79,7 +79,7 @@ function ListingCard({ listing }) {
   return (
     <Link
       to={`/listings/${listing.id}`}
-      className="group block overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:shadow-md"
     >
       <div className="relative aspect-[4/3] bg-gray-100">
         {thumbnail ? (
@@ -116,7 +116,7 @@ function ListingCard({ listing }) {
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <div className="flex items-center justify-between gap-2">
           <span className="text-lg font-bold text-gray-900">
             {listing.kind === "post"
@@ -135,7 +135,7 @@ function ListingCard({ listing }) {
           {listing.title}
         </p>
 
-        <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+        <div className="mt-3 flex items-center justify-between pt-1 text-xs text-gray-500 [margin-top:auto]">
           <button
             type="button"
             onClick={handleSellerClick}

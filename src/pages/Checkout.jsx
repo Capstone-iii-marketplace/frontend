@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ordersApi } from "../api/client";
 
@@ -49,12 +50,15 @@ function Checkout() {
         </h1>
 
         {items.length === 0 ? (
-          <p className="mt-6 rounded-lg border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
-            Your cart is empty.{" "}
-            <Link to="/home" className="text-purple-700 hover:underline">
+          <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border border-gray-200 bg-white px-6 py-14 text-center">
+            <ShoppingCart size={32} className="text-gray-300" />
+            <p className="text-sm font-medium text-gray-900">
+              Your cart is empty
+            </p>
+            <Link to="/home" className="btn btn-neutral btn-sm">
               Browse listings
             </Link>
-          </p>
+          </div>
         ) : (
           <>
             <ul className="mt-6 divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">

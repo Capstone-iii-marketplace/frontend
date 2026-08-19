@@ -14,3 +14,11 @@ body,
 body {
   @apply bg-base-100 text-base-content;
 }
+
+/* daisyUI renders dropdown toggles as <summary>; hide the native triangle. */
+summary::-webkit-details-marker {
+  display: none;
+}
+summary {
+  list-style: none;
+}

@@ -168,8 +168,10 @@ function MyListings() {
           ) : (
             <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {listings.map((listing) => (
-                <div key={listing.id} className="relative">
-                  <ListingCard listing={listing} />
+                <div key={listing.id} className="relative flex flex-col">
+                  <div className="flex flex-1 flex-col">
+                    <ListingCard listing={listing} />
+                  </div>
                   <div className="mt-2 flex gap-2">
                     <Link
                       to={`/listings/${listing.id}/edit`}

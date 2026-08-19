@@ -9,8 +9,8 @@ function Welcome() {
     // A dark gradient ground means the type stays readable whichever GIF is
     // dropped in — light frames, dark frames, or a swap for a different file.
     <GifBackground
-    // src="/pink3.gif"
-    // overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
+      src="/sea.gif"
+      overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
       <header className="sticky top-0 z-20 border-b border-gray-200/60 bg-white/50 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
