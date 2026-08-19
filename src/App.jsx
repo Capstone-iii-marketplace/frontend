@@ -8,7 +8,7 @@ import PostListing from "./pages/PostListing.jsx";
 import MyListings from "./pages/MyListings.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import Account from "./pages/Account.jsx";
-import Login from "./components/Login.jsx";
+import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import Signup from "./pages/Signup.jsx";

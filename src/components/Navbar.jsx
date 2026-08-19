@@ -6,7 +6,7 @@ import { useCart } from "../context/CartContext";
 // Top navigation bar, rendered once by AppLayout for every authenticated
 // page. Adapts its links based on auth state (Dashboard/Cart/Logout vs.
 // Login/Sign Up).
-function NavBar() {
+function NavBar({ dark = false }) {
   const { isAuthenticated, logout, user } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
@@ -18,7 +18,15 @@ function NavBar() {
   };
 
   return (
-    <nav className="w-full p-4 bg-base-200">
+    <nav
+      className={`sticky top-0 z-20 w-full border-b p-4 backdrop-blur-md ${
+        // Light pages (dashboard, listings) keep the default; the GIF-backed
+        // auth pages pass dark so the bar doesn't read as a foreign slab.
+        dark
+          ? "border-white/10 bg-gray-950/30 text-white"
+          : "border-white/20 bg-base-200/60"
+      }`}
+    >
       <div className="container mx-auto flex items-center gap-4">
         <Link
           to="/home"
