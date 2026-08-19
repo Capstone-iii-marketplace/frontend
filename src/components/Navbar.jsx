@@ -99,15 +99,23 @@ function NavBar({ dark = false }) {
             {/* Full link row, md and up. */}
             <div className="hidden items-center gap-1 md:flex">
               {links.map((link) => (
-                <NavLink key={link.to} to={link.to} className="btn btn-ghost btn-sm">
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className="btn btn-ghost btn-sm border-0 hover:bg-white/60"
+                >
                   {link.label}
                 </NavLink>
               ))}
-              <NavLink to="/account" className="btn btn-ghost btn-sm gap-2">
+              <NavLink to="/account" className="btn btn-ghost btn-sm gap-2 border-0 hover:bg-white/60">
                 {avatar}
                 {user?.name?.split(" ")[0] || "Account"}
               </NavLink>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={handleLogout}>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm border-0 hover:bg-white/60"
+                onClick={handleLogout}
+              >
                 Logout
               </button>
             </div>
@@ -134,10 +142,16 @@ function NavBar({ dark = false }) {
           </>
         ) : (
           <div className="flex items-center gap-1">
-            <NavLink to="/login" className="btn btn-ghost btn-sm">
+            <NavLink
+              to="/login"
+              className="btn btn-ghost btn-sm border-0 hover:bg-white/60"
+            >
               Login
             </NavLink>
-            <NavLink to="/signup" className="btn btn-neutral btn-sm">
+            <NavLink
+              to="/signup"
+              className="btn btn-neutral btn-sm border-0 shadow-sm transition hover:-translate-y-px hover:shadow-md"
+            >
               Sign Up
             </NavLink>
           </div>
