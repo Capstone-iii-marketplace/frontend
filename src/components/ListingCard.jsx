@@ -81,12 +81,12 @@ function ListingCard({ listing }) {
       to={`/listings/${listing.id}`}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:shadow-md"
     >
-      <div className="relative aspect-[4/3] bg-gray-100">
+      <div className="relative h-[205px] w-full overflow-hidden bg-gray-100">
         {thumbnail ? (
           <img
             src={thumbnail}
             alt={listing.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
