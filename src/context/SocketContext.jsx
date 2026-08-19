@@ -13,7 +13,7 @@ export function SocketProvider({ children }) {
     // means the handshake fires without a session and gets rejected.
     if (isLoading || !user) return;
 
-    const s = io(import.meta.env.VITE_API_URL, {
+    const s = io({
       // Sends the jwt cookie with the handshake; the server reads it in io.use.
       withCredentials: true,
     });

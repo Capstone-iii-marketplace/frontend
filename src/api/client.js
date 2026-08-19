@@ -1,7 +1,13 @@
 // Single gateway between the frontend and the Express backend. Every API
 // call in the app funnels through apiRequest() below, so fetch options,
 // error handling, and cookie behavior stay consistent in one place.
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+//
+// Always same-origin: /api is proxied to the backend by vite.config.js in
+// development and vercel.json in production. Calling the backend's own
+// domain directly would make the auth cookie third-party, which Safari
+// blocks outright — that's why login failed on iPhone but worked on
+// desktop Chrome.
+const API_BASE_URL = "";
 
 // Core fetch wrapper used by every function in this file.
 // - Sets Content-Type: application/json automatically when there's a body.
