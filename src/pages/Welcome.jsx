@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { PenLine, ArrowRight } from "lucide-react";
 import GifBackground from "../components/GifBackground";
+import NavBar from "../components/Navbar";
 
 // Public landing page at "/". Fully static — no state, no API calls.
 // The marketing front door: brand header, full-bleed hero, and CTAs.
@@ -12,37 +13,12 @@ function Welcome() {
       src="/sea.gif"
       overlay="bg-gradient-to-b from-white/70 via-white/40 to-white/70"
     >
-      <header className="sticky top-0 z-20 border-b border-gray-200/60 bg-white/50 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="font-display flex items-center gap-1.5 text-lg font-bold text-gray-900">
-            Sell Me A Pen
-            <PenLine
-              size={18}
-              strokeWidth={2.25}
-              className="text-emerald-600"
-            />
-          </span>
-          <nav className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-white/70 hover:text-gray-900"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
-            >
-              Sign up
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <NavBar />
 
       {/* Full-bleed: no max-width, no rounding, no padding on the section
           itself — it spans the whole viewport and fills the height left over
           below the header. */}
-      <section className="flex min-h-[calc(100vh-73px)] items-center">
+      <section className="flex min-h-[calc(100dvh-3.5rem)] items-center">
         {/* No scrim — the GIF shows at full strength. The text stays legible
             via a white halo instead, so nothing washes the animation out. */}
         <div className="relative mx-auto w-full max-w-6xl px-6 text-center">
