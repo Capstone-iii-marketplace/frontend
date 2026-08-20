@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // Attaches a MediaStream to a <video>. srcObject can't be set via JSX props,
 // so it has to happen in an effect after the element exists.
@@ -14,14 +15,23 @@ function Video({ stream, muted, className }) {
       ref={ref}
       autoPlay
       playsInline
-      // The local preview must be muted or you hear your own mic echoed back.
       muted={muted}
       className={className}
     />
   );
 }
 
+function initials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('');
+}
+
 export default function CallPanel({ call }) {
+  const { user } = useAuth();
   const {
     localStream,
     remoteStreams,
@@ -35,9 +45,13 @@ export default function CallPanel({ call }) {
 
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
+  const [minimized, setMinimized] = useState(false);
 
-  // Toggling a track's enabled flag keeps the connection up — stopping the
-  // track instead would require renegotiating to turn it back on.
+  // Fresh call, fresh window size — don't inherit "minimized" from the last one.
+  useEffect(() => {
+    if (status === 'idle') setMinimized(false);
+  }, [status]);
+
   const toggleMic = () => {
     const track = localStream?.getAudioTracks()[0];
     if (!track) return;
@@ -58,8 +72,6 @@ export default function CallPanel({ call }) {
     ) : null;
   }
 
-  // Incoming ring is its own modal — it renders before either side has a
-  // stream, so it can't share the video-overlay layout below.
   if (status === 'ringing' && incoming) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -87,18 +99,64 @@ export default function CallPanel({ call }) {
 
   const remote = [...remoteStreams.entries()];
 
-  // Fixed overlay above the whole app — the chat underneath needs no layout
-  // changes to accommodate it, since it's out of normal flow entirely.
+  // Local camera-off shows initials instead of a black rectangle — a black
+  // box in a corner reads as broken, an avatar reads as an intentional state.
+  const LocalPreview = ({ className }) =>
+    camOn ? (
+      <Video stream={localStream} muted className={className} />
+    ) : (
+      <div
+        className={`${className} flex items-center justify-center bg-gray-800`}
+      >
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-600 text-sm font-semibold text-white">
+          {initials(user?.name)}
+        </div>
+      </div>
+    );
+
+  if (minimized) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50 w-64 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl transition-all">
+        <div className="relative h-36">
+          {remote.length > 0 ? (
+            <Video
+              stream={remote[0][1]}
+              className="h-full w-full bg-black object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-xs text-gray-400">
+              {status === 'calling' ? 'Calling…' : 'Connecting…'}
+            </div>
+          )}
+          <LocalPreview className="absolute bottom-2 right-2 h-14 w-20 rounded border border-gray-700 object-cover" />
+        </div>
+        <div className="flex items-center justify-between gap-2 bg-gray-800 px-2 py-1.5">
+          <button
+            onClick={() => setMinimized(false)}
+            className="rounded px-2 py-1 text-xs text-white hover:bg-gray-700"
+          >
+            Expand
+          </button>
+          <button
+            onClick={endCall}
+            className="rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700"
+          >
+            End
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/80">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black/80 transition-all">
       <div className="relative min-h-0 flex-1">
         {remote.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-gray-400">
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-gray-400">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-white" />
             {status === 'calling' ? 'Calling…' : 'Connecting…'}
           </div>
         ) : (
-          // A grid rather than one element: the layout already holds however
-          // many remote streams arrive.
           <div
             className="grid h-full auto-rows-fr gap-1"
             style={{
@@ -115,11 +173,14 @@ export default function CallPanel({ call }) {
           </div>
         )}
 
-        <Video
-          stream={localStream}
-          muted
-          className="absolute bottom-6 right-6 h-28 w-40 rounded-lg border border-gray-700 bg-black object-cover shadow-lg"
-        />
+        <LocalPreview className="absolute bottom-6 right-6 h-28 w-40 rounded-lg border border-gray-700 shadow-lg" />
+
+        <button
+          onClick={() => setMinimized(true)}
+          className="absolute left-4 top-4 rounded-full bg-gray-800/80 px-3 py-1.5 text-xs text-white hover:bg-gray-700"
+        >
+          Minimize
+        </button>
       </div>
 
       {error && (
