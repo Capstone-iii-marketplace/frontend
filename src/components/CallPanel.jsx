@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Minimize2, Maximize2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // Attaches a MediaStream to a <video>. srcObject can't be set via JSX props,
@@ -116,7 +117,7 @@ export default function CallPanel({ call }) {
 
   if (minimized) {
     return (
-      <div className="fixed bottom-4 right-4 z-50 w-64 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl transition-all">
+      <div className="fixed bottom-4 right-4 z-50 w-64 overflow-hidden rounded-xl border border-gray-700 bg-gray-900 shadow-2xl">
         <div className="relative h-36">
           {remote.length > 0 ? (
             <Video
@@ -133,9 +134,10 @@ export default function CallPanel({ call }) {
         <div className="flex items-center justify-between gap-2 bg-gray-800 px-2 py-1.5">
           <button
             onClick={() => setMinimized(false)}
-            className="rounded px-2 py-1 text-xs text-white hover:bg-gray-700"
+            aria-label="Expand call"
+            className="rounded-full p-1.5 text-white hover:bg-gray-700"
           >
-            Expand
+            <Maximize2 size={14} />
           </button>
           <button
             onClick={endCall}
@@ -149,7 +151,7 @@ export default function CallPanel({ call }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/80 transition-all">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black/80">
       <div className="relative min-h-0 flex-1">
         {remote.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-gray-400">
@@ -177,9 +179,10 @@ export default function CallPanel({ call }) {
 
         <button
           onClick={() => setMinimized(true)}
-          className="absolute left-4 top-4 rounded-full bg-gray-800/80 px-3 py-1.5 text-xs text-white hover:bg-gray-700"
+          aria-label="Minimize call"
+          className="absolute left-4 top-4 rounded-full bg-gray-800/80 p-2 text-white hover:bg-gray-700"
         >
-          Minimize
+          <Minimize2 size={16} />
         </button>
       </div>
 
